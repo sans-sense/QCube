@@ -912,3 +912,15 @@ QC.Query.prototype.point = function(selected) {
 		
 };
 
+QC.Util = {};
+QC.Util.getAvgFunction = function(measure){
+    return function(table,partition){
+	    var sum =0;
+	    var i,rowIndex;
+	    for(i=0;i<partition.length;i++) {
+		    rowIndex = partition[i];
+		    sum = sum + parseInt(table.dataValue(rowIndex,measure));
+	    }
+	    return [(sum/partition.length)];
+    };
+};
