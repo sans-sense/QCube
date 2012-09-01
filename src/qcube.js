@@ -340,6 +340,16 @@ QC.Tree = function(cubeTable,options){
 	this.nodes = new QC.NodeManager(this._cubeTable);
 };
 
+QC.Tree.prototype.findAll = function(criteria) {
+    var dimensions = this.dimensions(), i;
+    for (i = 0; i < dimensions.length; i++) {
+        if (criteria[dimensions[i]] === undefined) {
+            criteria[dimensions[i]] = '*';
+        }
+    }
+    return new QC.Query(this,criteria, this.measures()).range();
+};
+
 QC.Tree.prototype.find = function(measures,conditions, options){
 	var queryType = QC.QueryTypes.point;
 	var keys = QC.objectKeys(conditions), keysLength = keys.length;

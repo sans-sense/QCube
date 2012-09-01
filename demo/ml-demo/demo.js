@@ -4,12 +4,33 @@ $(function(){
 
     // create drag functionality and add it to the relevant sections
     (function addDrag(){
+        var dimensions = [];
         function doDragOver(event) {
             var isLink = event.dataTransfer.types.contains("text/uri-list");
             if (isLink)
                 event.preventDefault();
         }
 
+        function drawModel() {
+            var model  = new PivotTableModel(dimensions, 'Rating', de.tree);
+            model.compute();
+            de['model'] = model;
+            new PivotRenderer('table', model).draw();
+            $('i.icon-trash').click(function() {
+                var tableName = $(this).parents('th').attr('data'); 
+                if (_.contains(dimensions, tableName)){
+                    var newDims = [];
+                    _.each(dimensions, function(dim) {
+                        if (dim !== tableName) {
+                            newDims.push(dim);
+                        }
+                    });
+                    dimensions = newDims;
+                    drawModel();
+                }
+            });
+
+        }
         function handleDrop(e) {
             var urlTokens, tableName;
             if (e.stopPropagation) {
@@ -18,7 +39,10 @@ $(function(){
             urlTokens = e.dataTransfer.getData("text/uri-list").split("#");
             if (urlTokens && urlTokens.length > 0) {
                 tableName = urlTokens [1];
-                this.innerHTML +=  tableName;
+                if (_.contains(dimensions, tableName) === false) {
+                    dimensions.push(tableName);
+                    drawModel();
+                }
             }
             return false;
         }
@@ -143,7 +167,3 @@ var de = demoExports;
 
 
 
-// rendering logic
-// ['F','M']
-// ['1', '25', '35', '45', '50', '56']
-// ['1', '10', '12', '15', '16', '17', '20', '7', '9' ]
