@@ -931,6 +931,6 @@ QC.Util.getAvgFunction = function(measure){
 		    rowIndex = partition[i];
 		    sum = sum + parseInt(table.dataValue(rowIndex,measure));
 	    }
-	    return [(sum/partition.length)];
+	    return [(sum/partition.length).toFixed(2)];
     };
 };

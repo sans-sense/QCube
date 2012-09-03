@@ -105,29 +105,34 @@ $(function(){
     });
 
     demoExports['dm'] = domainModels;
+    var domainInstances = {};
 
     // read the inputs and create the domain instances
-    var domainInstances = {};
-    $('div.data textarea').each(function() {
-        var elementId = this.id, elementType, values, currentDomainInstance;
-        elementType = elementId.substring(9);
-        elementType = elementType[0].toUpperCase() + elementType.substring(1);
-        domainInstances[elementType] = [];
-        values = this.value.split('\n');
-        _.each(values, function(value, index) {
-            if (value.trim().length > 0) {
-                currentDomainInstance = demoExports['dm'][elementType].create(value.trim());
-                if (currentDomainInstance.id) {
-                    domainInstances[elementType][currentDomainInstance.id] = currentDomainInstance
-                } else {
-                    domainInstances[elementType].push(currentDomainInstance);
+    function createDomainInstances(){
+        $('div.data textarea').each(function() {
+            var elementId = this.id, elementType, values, currentDomainInstance;
+            elementType = elementId.substring(9);
+            elementType = elementType[0].toUpperCase() + elementType.substring(1);
+            domainInstances[elementType] = [];
+            values = this.value.split('\n');
+            _.each(values, function(value, index) {
+                if (value.trim().length > 0) {
+                    currentDomainInstance = demoExports['dm'][elementType].create(value.trim());
+                    if (currentDomainInstance.id) {
+                        domainInstances[elementType][currentDomainInstance.id] = currentDomainInstance
+                    } else {
+                        domainInstances[elementType].push(currentDomainInstance);
+                    }
                 }
-            }
+            });
         });
-    });
-    demoExports['di'] = domainInstances;
+        demoExports['di'] = domainInstances;
 
-    function computeQCTree() {
+    }
+
+    function computeQCTree() {        
+        createDomainInstances();
+
         // flatten rating to get the QC table from which we can create the cube
         var tableData = [];
         // TODO take genres into picture, complexity involved as it is multi valued and I currently do not know how to handle that
