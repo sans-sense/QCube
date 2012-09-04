@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<meta charset="UTF-8">
+<html>
+<head>
+
+<title>Pivot Table Test</title>
+
+<!-- Jasmine includes -->
+<link rel="stylesheet" type="text/css" href="../../lib/jasmine-1.1.0/jasmine.css">
+<script type="text/javascript" src="../../lib/jasmine-1.1.0/jasmine.js"></script>
+<script type="text/javascript" src="../../lib/jasmine-1.1.0/jasmine-html.js"></script>
+<script type="text/javascript" src="../../lib/underscore-min.js"></script>
+
+<!-- Source files -->
+<script type="text/javascript" src="./pivot.js"></script>
+
+<!-- Spec files -->
+<script type="text/javascript" src="./pivot.spec.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+jasmine.getEnv().execute();
+</script>
+
+</body>
+</html>
