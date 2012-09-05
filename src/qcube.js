@@ -475,12 +475,16 @@ QC.TreeBuilder.prototype.build = function() {
 
 			for(j = 0; j < this._cdlength; j++){
 				dimension = this._cubeDimensions[j];
-				if(QC.Star === child.upper[j] && QC.Star !== currentLower[j]){
-					cnodes = QC.compactArray(child.nodes);
-					this._buildLink(cnodes[cnodes.length - 1], lastBuilt[j], currentLower[j], dimension);
-					break;
-				}
-
+                // AN noticing gaps in child
+                if (child) {
+				    if(QC.Star === child.upper[j] && QC.Star !== currentLower[j]){
+					    cnodes = QC.compactArray(child.nodes);
+					    this._buildLink(cnodes[cnodes.length - 1], lastBuilt[j], currentLower[j], dimension);
+					    break;
+				    }
+                } else {
+                    console.log('there was a gap in current for '+childIdIdx);
+                }
 			}
 		}
 	}
@@ -934,3 +938,10 @@ QC.Util.getAvgFunction = function(measure){
 	    return [(sum/partition.length).toFixed(2)];
     };
 };
+
+if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+        exports = module.exports = QC;
+    }
+    exports.QC = QC;
+}

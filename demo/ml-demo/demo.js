@@ -2,6 +2,34 @@ var demoExports = {};
 (function(){
     var de = demoExports;
     var domainModels = {};
+    var und;
+    var QCRoot;
+
+    // compatibility with node
+    try{
+        if (_ && _.VERSION) {
+            und = _;
+        } else {
+            und = require('./../../lib/underscore-min.js');;
+        }
+    }catch(e) {
+        und = require('./../../lib/underscore-min.js');
+    }
+
+    try {
+        if (QC) {
+            QCRoot = QC;
+        } else {
+            QCRoot = require('./../../src/qcube.js');
+        }
+    } catch(e) {
+        QCRoot = require('./../../src/qcube.js');
+    }
+
+    if (!(console)) {
+        console = {};
+        console.log = function(){};
+    }
 
     de['eventManager'] = (function() {
         var eventManager = {};
@@ -9,7 +37,7 @@ var demoExports = {};
        
         eventManager.emit = function(eventName, data) {
             if (eventVsCallbacks[eventName]) {
-                _.each(eventVsCallbacks[eventName], function(callback) {
+                und.each(eventVsCallbacks[eventName], function(callback) {
                     callback.call(this, data);
                 });
             }
@@ -33,7 +61,7 @@ var demoExports = {};
                 splits = regex.exec(stringVal);
                 if (splits) {
                     val = new domainModels[model.name]();
-                    _.each(fields, function(field, index) {
+                    und.each(fields, function(field, index) {
                         if (index === 0 && val.pk) {
                             val.id = splits[index + 1]
                         }
@@ -45,7 +73,7 @@ var demoExports = {};
         };
 
         function createFields (actualPrototype, fields){
-            _.each(fields, function(field) {
+            und.each(fields, function(field) {
                 actualPrototype[field] = null;
             });
         };
@@ -73,26 +101,31 @@ var demoExports = {};
         // TODO take genres into picture, complexity involved as it is multi valued and I currently do not know how to handle that
         var tableModel = ['Title', 'Gender', 'Age', 'Occupation', 'Rating'];
         var ratings = domainInstances['Rating'], users = domainInstances['User'], movies = domainInstances['Movie'];
-        _.each(ratings, function(rating) {
+        und.each(ratings, function(rating) {
             var user = users[rating.UserID] || {}, movie = movies[rating.MovieID] || {};
             tableData.push([movie.Title || 'uk', user.Gender || 'uk', user.Age || '0', user.Occupation || '0', rating.Rating]);
         });
         demoExports['data'] = tableData;
         demoExports['model'] = tableModel;
 
-        var qcTable = new QC.Table(tableModel, tableData);
-        var qCube = new QC.Cube(qcTable, _.filter(tableModel, function(value, index){return index !== 4;}), [tableModel[4]]);
-        qCube.build(QC.Util.getAvgFunction('Rating'));
+        console.log(new Date() + ' flattened data available');
+
+        var qcTable = new QCRoot.Table(tableModel, tableData);
+        var qCube = new QCRoot.Cube(qcTable, und.filter(tableModel, function(value, index){return index !== 4;}), [tableModel[4]]);
+        qCube.build(QCRoot.Util.getAvgFunction('Rating'));
         demoExports['cube'] = qCube;
         var treeData = {};
         
-        var tree = new QC.TreeBuilder(qCube, treeData).build();
+        var tree = new QCRoot.TreeBuilder(qCube, treeData).build();
         demoExports['tree'] = tree;
         eventManager.emit('cube-computed', treeData);
     }; // end of compute QC Tree
     de['computeQCTree'] = computeQCTree;
+
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            exports = module.exports = demoExports;
+        }
+        exports.demoExports = demoExports;
+    }
 }());
-
-
-
-
