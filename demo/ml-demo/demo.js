@@ -56,19 +56,21 @@ var demoExports = {};
         function createDomainModel(model, fields, regex) {
             domainModels[model.name] = model;
             createFields(model['prototype'], fields);
-            model['create'] = function(stringVal) {
-                var val, splits;
-                splits = regex.exec(stringVal);
-                if (splits) {
-                    val = new domainModels[model.name]();
-                    und.each(fields, function(field, index) {
-                        if (index === 0 && val.pk) {
-                            val.id = splits[index + 1]
-                        }
-                        val[field] = splits[index + 1];
-                    });
+            if (regex) {
+                model['create'] = function(stringVal) {
+                    var val, splits;
+                    splits = regex.exec(stringVal);
+                    if (splits) {
+                        val = new domainModels[model.name]();
+                        und.each(fields, function(field, index) {
+                            if (index === 0 && val.pk) {
+                                val.id = splits[index + 1]
+                            }
+                            val[field] = splits[index + 1];
+                        });
+                    }
+                    return val;
                 }
-                return val;
             }
         };
 
@@ -88,6 +90,9 @@ var demoExports = {};
         createDomainModel(User,  ['UserID','Gender','Age','Occupation','Zip-code'], /(\d+)::(.+)::(\d+)::(\d+)::(\d+)/);
         createDomainModel(Movie,  ['MovieID','Title','Genres'], /(\d+)::(.+)::(\S+)/);
         createDomainModel(Rating, ['UserID','MovieID','Rating','Timestamp'], /(\d+)::(\d+)::(\d+)::(\d+)/);
+
+        demoExports['createDomainModel'] = createDomainModel;
+
     }()); // end of addDomainModels
 
     demoExports['dm'] = domainModels;
