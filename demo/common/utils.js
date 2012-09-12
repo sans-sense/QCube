@@ -34,6 +34,5 @@
         return lines;
     }
 
-    console.log(utils);
     utils.exportModule = exportModule;
 }());

@@ -21,7 +21,6 @@
     cube_server.createServer = createServer;
     cube_server.createIndexes = function(){};
     exportModule('cube_server', cube_server);
-    console.log(cube_server);
 
     function createCube(dimensions, measure,  tableData, demoScope) {
         var qcTable = new QC.Table(dimensions.concat(measure), tableData);
