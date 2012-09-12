@@ -2,14 +2,16 @@ describe("Pivot specs", function() {
     
     var dimensionsWithData, measure = 'rating', qcTree = {}, dimensions, pivotModel, dimLengths;
 
+    var findCalls = [];
     // three dimensions with 2, 6 and 9 unique values
-    dimensionsWithData= {'Gender':['M', 'F'], 'Age':['1', '25', '35', '45', '50', '56'], 'Occupation':['1', '10', '12', '15', '16', '17', '20', '7', '9' ]};
+    dimensionsWithData= {'Gender':['M', 'F'], 'Age':['1', '25', '35'], 'Occupation':['1', '10', '12', '15']};
 
     // a dummy qc tree
     qcTree.values = function(dimension) {
         return dimensionsWithData[dimension];
     };
     qcTree.findAll = function(criteria) {
+        findCalls.push(criteria);
         return {'rating' : 10 };
     };
 
@@ -19,6 +21,10 @@ describe("Pivot specs", function() {
 
     pivotModel = new PivotTableModel(dimensions, measure, qcTree);
     pivotModel.compute();
+
+    beforeEach(function () {
+        findCalls = [];
+    });
 
     function getDimensionData(index, iterator) {
         var i = 0;
@@ -55,5 +61,10 @@ describe("Pivot specs", function() {
         expect(_.pluck(thirdDimData, 'value')[0]).toEqual(dimensionsWithData[dimensions[2]][0]);
     });
 
+    it('model should call findAll 24 (2 * 3 *4) times to find data for all combinations', function() {
+        pivotModel = new PivotTableModel(dimensions, measure, qcTree);
+        pivotModel.compute();
+        expect(findCalls.length).toEqual(24);
+    });
 });
 	

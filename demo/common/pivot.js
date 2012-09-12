@@ -49,10 +49,11 @@ function PivotTableModel(dimensions, measure, qcTree) {
         // calculate the data for fact model
         var preComputedValues = [];
         var combinationsTillMe = (factModel.previous)? factModel.previous.combinationsTillMe():1;
-        var i, dimValues;
+        var i, dimValues, measureValue;
         for (i = 0; i < combinationsTillMe; i++) {
             dimValues = _.map(self.dimensions, function(dimension, index) {return columnModels[index].value(i);});
-            preComputedValues.push(new CellData(i, 1, getFactValue(self.dimensions, dimValues,self.measure, self.qcTree)));
+            measureValue = getFactValue(self.dimensions, dimValues,self.measure, self.qcTree);
+            preComputedValues.push(new CellData(i, 1, measureValue));
         }
         factModel.preComputedValues = preComputedValues;
         columnModels.push(factModel);
@@ -96,22 +97,10 @@ function PivotTableModel(dimensions, measure, qcTree) {
                 val = this.preComputedValues[index];
             } else {
                 combinationsFromMe = this.combinationsFromMe();
-                if (combinationsFromMe === 1) {
-                    return this.uniqueValues[index % this.uniqueValues.length];
-                } else {
-                    return this.uniqueValues[Math.floor( index / combinationsFromMe)];
-                }
-            //     combinationsFromMe = this.combinationsFromMe();
-            //     if (combinationsFromMe === 1) {
-            //         val = this.cellDatas[index];
-            //     } else {
-            //         for ( i = 0; i < this.cellDatas.length; i++){
-            //             if (index < this.cellDatas[i].rowIndex){
-            //                 val = this.cellDatas[i];
-            //                 break;
-            //             }
-            //         }
-            //     }
+                return this.uniqueValues[Math.floor( index / combinationsFromMe) % this.uniqueValues.length];
+            }
+            if (!val) {
+                throw 'Value missing in '+ index + ' for ' + this.columnName;
             }
             return (val && val.value)? val.value:val;
         };
@@ -168,7 +157,7 @@ function PivotRenderer(tableSelector, model) {
         if (rowSpan > 1) {
             table.find(cellSelector).prepend($('<td>').text(value).attr('rowspan', rowSpan));
         } else {
-            table.find(cellSelector).prepend($('<td>').text(value));
+            table.find(cellSelector).prepend($('<td>').text(value).attr('data', rowIndex));
         }
     };
 

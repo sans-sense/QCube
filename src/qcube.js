@@ -939,6 +939,12 @@ QC.Util.getAvgFunction = function(measure){
     };
 };
 
+QC.Util.getCountFunction = function(measure){
+    return function(table,partition){
+	    return partition.length;
+    };
+};
+
 if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = QC;

@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>QCube Demo</title>
+    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap.min.css">
+   <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+   <script src="../../lib/jquery.min.js"></script>
+   <script>
+     var rootUrl = '/find?payload=';
+     var findCalls = [];
+     QC = {};
+     $(function(){
+     var originalCompute = PivotTableModel.prototype.compute;
+     var data;
+     var dimValues = {};
+     (function () {
+     this.compute = function() {
+     var url = rootUrl + escape(JSON.stringify({method:'getAll', filter:this.dimensions}));
+     $.ajax({url:url, async:false, success: function(result){data = result}});
+     findCalls = [];
+     originalCompute.call(this);
+     }
+     }).call(PivotTableModel.prototype);
+
+     demoExports.tree = {
+     values:function(dimension) {
+     var url = rootUrl + escape(JSON.stringify({method:'values', filter:dimension}));
+     var result = dimValues[dimension];
+     if (!result) {
+        $.ajax({url:url, async:false, success: function(text){result = text}});
+        dimValues[dimension] = result;
+     }
+     return result;
+     },
+     findAll:function(criteria) {
+     <!-- var url = rootUrl + escape(JSON.stringify({method:'findAll', filter:criteria})); -->
+     <!-- var result; -->
+     <!-- $.ajax({url:url, async:false, cache:false, success: function(text){result = text}}); -->
+     var key = _.map(criteria, function(value){return value}).toString();
+     findCalls.push(criteria);
+     return [{'Commit': data[key]}];
+     }
+     };
+
+     function getMeausreDetails(criteria) {
+     var url = '/find?payload=' + escape(JSON.stringify({method:'get', filter:criteria}));
+     $.ajax({url:url, async:true, cache:false, success: function(results){displayDetails(results);}});
+     };
+
+     function displayDetails(results) {
+     
+     }
+     });
+   </script>
+   <script src="../../lib/underscore-min.js"></script>
+   <script src="pivot.js"></script>
+   <script src="demo.ui.js"></script>
+   <script src="demo.js"></script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">QCube Demo</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="https://github.com/imaginea/QCube">About</a></li>
+              <li><a href="http://www.imaginea.com">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+
+<div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="well sidebar-nav facts">
+            <ul class="nav nav-list">
+              <li class="nav-header">Fact</li>
+              <li ><a href="#Commit">Commit</a></li>
+            </ul>
+          </div>
+          <div class="well sidebar-nav dimensions">
+            <ul class="nav nav-list">
+              <li class="nav-header">Dimension</li>
+              <li><a href="#user">User</a>
+                <ul>
+                  <li><a href="#Author">Author</a></li>
+                  <li><a href="#Team">Team</a></li>
+                  <li><a href="#Complexity">Complexity</a></li>
+                </ul>
+              </li>
+              <li><a href="#Time">Time</a>
+                <ul>
+                  <li><a href="#Month">Month</a></li>
+                  <li><a href="#Year">Year</a></li>
+                  <li><a href="#Day">Day</a></li>
+              </li>
+              </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+
+        <div class="span9">
+          <p class="lead">Git Commit Demo</p>
+          <div class="report well">
+            <p><strong>Summary : </strong><span id="cube_summary"></span></p>
+            
+            <p class="pull-right"><small>Drag the dimensions to view averages at those levels</small></p>
+
+            <table id="report-table" class="table table-bordered" >
+              <thead>
+                <tr>
+                  <th>Commit</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            <br/>
+            <button id="toggle-data" class="btn btn-secondary btn-mini">Show Data</button>
+            <button id="compute-tree" class="btn btn-secondary btn-mini">Recompute Tree</button>
+          </div><!--/row-->
+          </div><!--/row-->
+
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>&copy; Imaginea 2012</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>    
+  </body>
+</html>

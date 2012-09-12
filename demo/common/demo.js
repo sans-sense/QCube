@@ -56,6 +56,9 @@ var demoExports = {};
         function createDomainModel(model, fields, regex) {
             domainModels[model.name] = model;
             createFields(model['prototype'], fields);
+            model['prototype'].toString = function() {
+                return model + ' ' +model['prototype'][fields[0]] + ' ' +model['prototype'][fields[1]]
+            }
             if (regex) {
                 model['create'] = function(stringVal) {
                     var val, splits;
@@ -97,18 +100,32 @@ var demoExports = {};
 
     demoExports['dm'] = domainModels;
 
+    function getPeriod(yearString) {
+        var year = parseInt(yearString);
+        var diff = year - 1900;
+        if (diff < 80) {
+            return '1900-1980';
+        } else {
+            return ((diff % 2) === 0)? (year + '-' + (year + 1)):((year - 1) + '-' + year);
+        }
+    }
 
     function computeQCTree(domainInstances) {        
         var eventManager = de['eventManager'];
 
         // flatten rating to get the QC table from which we can create the cube
         var tableData = [];
+        var yearRegex = /.*\((\d{4})\)/;
         // TODO take genres into picture, complexity involved as it is multi valued and I currently do not know how to handle that
-        var tableModel = ['Title', 'Gender', 'Age', 'Occupation', 'Rating'];
+        var tableModel = ['Period', 'Gender', 'Age', 'Occupation', 'Rating'];
         var ratings = domainInstances['Rating'], users = domainInstances['User'], movies = domainInstances['Movie'];
         und.each(ratings, function(rating) {
-            var user = users[rating.UserID] || {}, movie = movies[rating.MovieID] || {};
-            tableData.push([movie.Title || 'uk', user.Gender || 'uk', user.Age || '0', user.Occupation || '0', rating.Rating]);
+            var user = users[rating.UserID], movie = movies[rating.MovieID];
+            if (user && movie) {
+                tableData.push([getPeriod(yearRegex.exec(movie.Title)[1]) || 'uk', user.Gender || 'uk', user.Age || '0', user.Occupation || '0', rating.Rating]);
+            } else {
+                console.log("could not find detail for "+rating);
+            }
         });
         demoExports['data'] = tableData;
         demoExports['model'] = tableModel;
