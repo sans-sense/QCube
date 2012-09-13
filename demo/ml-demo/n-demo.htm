@@ -14,19 +14,21 @@
       }
     </style>
    <script src="../../lib/jquery.min.js"></script>
+   <script src="../../lib/underscore-min.js"></script>
    <script>
      var rootUrl = '/find?payload=';
-     var findCalls = [];
      QC = {};
      $(function(){
      var originalCompute = PivotTableModel.prototype.compute;
      var data;
      var dimValues = {};
+     var de = demoExports;
+     de['measure'] = 'Rating';
+
      (function () {
      this.compute = function() {
      var url = rootUrl + escape(JSON.stringify({method:'getAll', filter:this.dimensions}));
      $.ajax({url:url, async:false, success: function(result){data = result}});
-     findCalls = [];
      originalCompute.call(this);
      }
      }).call(PivotTableModel.prototype);
@@ -43,8 +45,9 @@
      },
      findAll:function(criteria) {
      var key = _.map(criteria, function(value){return value}).toString();
-     findCalls.push(criteria);
-     return [{'Commit': data[key]}];
+     var result = {};
+     result[de['measure']] = data[key]
+     return [result];
      }
      };
 
@@ -58,7 +61,6 @@
      }
      });
    </script>
-   <script src="../../lib/underscore-min.js"></script>
    <script src="pivot.js"></script>
    <script src="demo.ui.js"></script>
    <script src="demo.js"></script>

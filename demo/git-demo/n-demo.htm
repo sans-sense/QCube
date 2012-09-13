@@ -16,17 +16,18 @@
    <script src="../../lib/jquery.min.js"></script>
    <script>
      var rootUrl = '/find?payload=';
-     var findCalls = [];
      QC = {};
      $(function(){
      var originalCompute = PivotTableModel.prototype.compute;
      var data;
      var dimValues = {};
+     var de = demoExports;
+     de['measure'] = 'Commit;
+
      (function () {
      this.compute = function() {
      var url = rootUrl + escape(JSON.stringify({method:'getAll', filter:this.dimensions}));
      $.ajax({url:url, async:false, success: function(result){data = result}});
-     findCalls = [];
      originalCompute.call(this);
      }
      }).call(PivotTableModel.prototype);
@@ -42,12 +43,10 @@
      return result;
      },
      findAll:function(criteria) {
-     <!-- var url = rootUrl + escape(JSON.stringify({method:'findAll', filter:criteria})); -->
-     <!-- var result; -->
-     <!-- $.ajax({url:url, async:false, cache:false, success: function(text){result = text}}); -->
      var key = _.map(criteria, function(value){return value}).toString();
-     findCalls.push(criteria);
-     return [{'Commit': data[key]}];
+     var result = {};
+     result[de['measure']] = data[key]
+     return [result];
      }
      };
 
