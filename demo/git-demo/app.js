@@ -12,7 +12,7 @@
 
     var cube_server = require(pathStrToCommon + 'cube_server.js');
 
-    var projectName = 'chickenwings';
+    var projectName = 'project';
     var dimensions = ['Author', 'Team', 'Month', 'Year', 'Day', 'Complexity'];
     var measure = ['Commit'];
 
@@ -22,7 +22,6 @@
     function Commit(){};
     demo.createDomainModel(Commit, dimensions.concat(measure));
     readProjectLog();
-    console.log(cube_server);
 
     ee.on('instances-created', function(commits) {
         var tableData = flattenData(commits);
@@ -33,15 +32,7 @@
 
     ee.on('cube-computed', function(args) {
         console.log(new Date() + ' cube-computed');
-        var routes = {
-            '/lib/jquery.min.js':'/../../lib/jquery.min.js',
-            '/lib/underscore-min.js':'/../../lib/underscore-min.js',
-            '/demo.ui.js':'/../common/demo.ui.js',
-            '/demo.js':'/../common/demo.js',
-            '/pivot.js':'/../common/pivot.js'
-
-        };
-        cube_server.createServer(routes, __dirname);
+        cube_server.createServer( __dirname);
         ee.emit('server-created', args)
     });
 
@@ -73,11 +64,6 @@
         var changeLogRegex = / (\d+) file(s)? changed, (((\d+) insertions\(\+\))?)((, )?)(((\d+) deletions\(\-\))?)/;
         var teamRegex =  /\S+@(\S+)\.\S+/;
 
-        var userHack = {
-            'saha.prasanta@gmail.com' : 'prasanta.s@imaginea.com',
-            'ajay.pramati@gmail.com' : 'ajay.n@imaginea.com'
-        };
-
         readStream.setEncoding('ascii');
 
         readStream.on('data', function(data) {
@@ -97,10 +83,6 @@
                         currCommit.Team = teamRegex.exec(currCommit.Author)[1];
                     }catch(e) {console.log('problem reading ' + line);}
 
-                    if (userHack[currCommit.Author]) {
-                        currCommit.Author = userHack[currCommit.Author];
-                        currCommit.Team = 'imaginea';
-                    }
                 } else if (splits = dateRegex.exec(line)) {
                     currCommit.date = new Date(splits[1].trim());
                     currCommit.Month = currCommit.date.getMonth();

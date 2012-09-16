@@ -1,8 +1,11 @@
 describe("Pivot specs", function() {
     
-    var dimensionsWithData, measure = 'rating', qcTree = {}, dimensions, pivotModel, dimLengths;
+    var dimensionsWithData, measure, qcTree, dimensions, pivotModel, dimLengths, findCalls;
 
-    var findCalls = [];
+    findCalls = [];
+     measure = 'Rating';
+    qcTree = {};
+
     // three dimensions with 2, 6 and 9 unique values
     dimensionsWithData= {'Gender':['M', 'F'], 'Age':['1', '25', '35'], 'Occupation':['1', '10', '12', '15']};
 

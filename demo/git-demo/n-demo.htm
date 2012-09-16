@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>QCube Demo</title>
-    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../lib/bootstrap.min.css">
    <style type="text/css">
       body {
         padding-top: 60px;
@@ -14,6 +14,7 @@
       }
     </style>
    <script src="../../lib/jquery.min.js"></script>
+    <script src="../../lib/bootstrap.min.js"></script>    
    <script>
      var rootUrl = '/find?payload=';
      QC = {};
@@ -22,7 +23,7 @@
      var data;
      var dimValues = {};
      var de = demoExports;
-     de['measure'] = 'Commit;
+     de['measure'] = 'Commit';
 
      (function () {
      this.compute = function() {
@@ -148,6 +149,5 @@
       </footer>
 
     </div><!--/.fluid-container-->
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>    
   </body>
 </html>

@@ -36,11 +36,23 @@
     }
 
 
-    function createServer(routes, rootPath) {
+    function createServer(rootPath, appRoutes) {
+        var routes = appRoutes || {
+            '/lib/jquery.min.js':'/../../lib/jquery.min.js',
+            '/lib/underscore-min.js':'/../../lib/underscore-min.js',
+            '/lib/bootstrap.min.js':'/../../lib/bootstrap.min.js',
+            '/lib/bootstrap.min.css':'/../../lib/bootstrap.min.css',
+            '/img/glyphicons-halflings.png':'/../../lib/glyphicons-halflings.png',
+            '/demo.ui.js':'/../common/demo.ui.js',
+            '/demo.js':'/../common/demo.js',
+            '/pivot.js':'/../common/pivot.js'
+        };
+
         console.log(rootPath);
         var dictTypes = {
             '.js': 'text/javascript',
-            '.css': 'text/css'
+            '.css': 'text/css',
+            'png':'image/png'
         };
 
         // yes I can use connect, for anything real I should use connect, this is minimal dependency

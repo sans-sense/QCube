@@ -77,15 +77,7 @@
 
     ee.on('cube-computed', function(args) {
         console.log(new Date() + ' cube computed');
-        var routes = {
-            '/lib/jquery.min.js':'/../../lib/jquery.min.js',
-            '/lib/underscore-min.js':'/../../lib/underscore-min.js',
-            '/demo.ui.js':'/../common/demo.ui.js',
-            '/demo.js':'/../common/demo.js',
-            '/pivot.js':'/../common/pivot.js'
-
-        };
-        cube_server.createServer(routes, __dirname);
+        cube_server.createServer( __dirname);
         ee.emit('server-created', args)
     });
 
