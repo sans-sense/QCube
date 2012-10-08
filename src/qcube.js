@@ -153,11 +153,13 @@ QC.arrayForEach = function(fn, arr, objThis) {
 QC.Table = function (columnNames, data, isJson) {
 	this.columnNames = columnNames;
 	this._data = data;
+    // is array
 	this._isAA = ! isJson;
 };
 
 QC.Table.prototype.dataValue = function (rowIndex, columnName) {
 	var row = this._data[rowIndex];
+    // for array find the col index
 	if(this._isAA){
 		var colIndex = this.columnNames.indexOf(columnName);
 		return row[colIndex];
@@ -183,6 +185,7 @@ QC.Table.prototype.getLength = function () {
 	return this._data.length;
 };
 
+// Only used for indexing, dont need from API
 QC.OrderedHash = function () {
     this.data = {};
     this.order_keys = [];
@@ -629,9 +632,11 @@ QC.Cube.prototype.values = function () {
 
 QC.Cube.prototype._sortTempClasses = function () {
 	var self = this;
+    var ctr = 0;
 	this._tempClasses = this._tempClasses.sort(function(a, b) {
 		//First lets get the max for allmeasures.
-		var i = 0, ml = self._measures.length, measureName, mIdx, newMaxVal, newMinVal;
+		var i, ml, measureName, mIdx, newMaxVal, newMinVal;
+        ml = self._measures.length;
 		for(i = 0; i < ml; i++){
 			measureName = self._measures[i];
 			//temp class data occupy 0 -3 cols.
@@ -644,7 +649,7 @@ QC.Cube.prototype._sortTempClasses = function () {
 			self._measureMaxAndMin.measureName.MAX = QC.maxVal(self._measureMaxAndMin.measureName.MAX, newMaxVal);
 			self._measureMaxAndMin.measureName.MIN = QC.minVal(self._measureMaxAndMin.measureName.MIN, newMinVal);
 		}
-	
+	    ctr++;
 		//now lets sort this data
 		var upperA = QC.arrayToString(a[1]).toLowerCase(), upperB = QC.arrayToString(b[1]).toLowerCase();
 		//sort string ascending
@@ -656,6 +661,7 @@ QC.Cube.prototype._sortTempClasses = function () {
 		}
 		 return 0; //default return value (no sorting)
 	});
+    console.log('Number of times sort was called ->' + ctr + ' for ' +this._tempClasses.length);
 };
 
 QC.Cube.prototype._indexes = function (partition) {
@@ -829,6 +835,8 @@ QC.Query.prototype._searchMeasures = function(nodeId, measures){
 	
 };
 
+// _lastSpecifiedPosition returns the last position where a non-all search dim is present
+// e.g for {Occupation:'21'} and [Period, Age, Occupation, Gender] value is 2
 QC.Query.prototype._lastSpecifiedPosition = function() {
 	var i = this._tree.dimensions().length, cond;
 	var dimensions = this._tree.dimensions();
@@ -842,6 +850,7 @@ QC.Query.prototype._lastSpecifiedPosition = function() {
 	return -1;
 };
 
+// search starts at root, makes recursive calls, merging the results
 QC.Query.prototype.range = function(node, position, cell, results){
 	var i, v, searchedMeasures, values, dimension, savedNode, value, tempCell, merged;
 	var dimLength =  this._tree.dimensions().length;
