@@ -1,2 +1,5 @@
 *.dat
 *.log
+build
+node_modules
+wip
