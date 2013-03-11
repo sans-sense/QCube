@@ -38,7 +38,7 @@ module.exports = function(grunt) {
     // Register tasks.
     ['jshint', 'uglify', 'jasmine', 'watch' ].forEach(function(contrib_module_name) {
         grunt.loadNpmTasks('grunt-contrib-' + contrib_module_name);
-    })
+    });
     
     grunt.registerTask('complete', ['jshint', 'uglify']);
     grunt.registerTask('test', ['jshint', 'jasmine']);
