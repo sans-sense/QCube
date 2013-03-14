@@ -59,18 +59,4 @@ var QC = {};
             return tableData;
         };
     }).call(HyperCube.prototype);
-
-
-
-
-    // internal utils
-    function min(a, b) {
-        return (a < b)? a : b;
-    }
-    function max(a, b) {
-        return (a < b)? b : a;
-    }
-    function isArray(object) {
-        return Object.prototype.toString.call(object) === "[object Array]";
-    }
 }).call(QC);

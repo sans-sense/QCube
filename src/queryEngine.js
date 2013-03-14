@@ -7,6 +7,12 @@ var QE = {};
     star = '*';
 
     this.find = function(qcTree, query) {
+        var i;
+        for ( i = 0; i < query.length; i++) {
+            if (isArray(query[i])) {
+                return doRangeQuery(qcTree, query);
+            }
+        }
         return doPointQuery(qcTree, query);
     };
 
@@ -51,15 +57,17 @@ var QE = {};
         }
 
         if (newRoot)  {
-            if (newRoot.value !== null) {
-                value = newRoot.value;
-            } else {
-                // keep picking the child corresponding to the last dimension 
-                // of the current node till we hit one with aggregate
-                value = pickLast(newRoot).value;
-            }
+            value = getNodeValue(newRoot);
         }
         return value;
+    }
+
+    function doRangeQuery(qcTree, query) {
+        var criteria, results;
+        results = [];
+        criteria = createCriteria(query);
+        recursiveRangeQuery(qcTree, criteria.next, qcTree.root, 0, results, query);
+        return results;
     }
 
     function createCriteria(query) {
@@ -76,7 +84,7 @@ var QE = {};
         return criteria;
     }
 
-    function searchRoot(root, criteria) {
+    function searchRoot(root, criteria, valueIndex) {
         var newRoot, i, rootIndex;
 
         if (criteria === null) {
@@ -84,14 +92,14 @@ var QE = {};
         } else {
             // if root points to any edge or link labeled criteria return the end of that edge or link
             for ( i = 0; i < root.children.length; i++) {
-                if (criteria.matches(root.children[i])) {
+                if (criteria.matches(root.children[i], valueIndex)) {
                     return  root.children[i];
                 }
             }
             
             // if root points to any link
             for (i = 0; i < root.links.length; i++) {
-                if (criteria.matches(root.links[i].end)) {
+                if (criteria.matches(root.links[i].end, valueIndex)) {
                     return root.links[i].end;
                 }
             }
@@ -106,6 +114,45 @@ var QE = {};
         return null;
     }
 
+    function getNodeValue(qNode) {
+        var value;
+        if (qNode.value !== null) {
+            value = qNode.value;
+        } else {
+            // keep picking the child corresponding to the last dimension 
+            // of the current node till we hit one with aggregate
+            value = pickLast(qNode).value;
+        }
+        return value;
+    }
+
+
+    function recursiveRangeQuery(qcTree, criteria, newRoot, index, results, query) {
+        var  currRoot, i;
+        if (!(criteria) || (index > criteria.last().index)) {
+            if (newRoot) {
+                results.push(getNodeValue(newRoot));
+            }
+        }
+
+        if (criteria) {
+            if (!isArray(query[index])) {
+                currRoot = searchRoot(newRoot, criteria);
+                if (currRoot) {
+                    recursiveRangeQuery(qcTree, criteria.next, currRoot, index + 1, results, query);
+                }
+            } else {
+                for ( i = 0; i < criteria.value.length; i++) {
+                    currRoot = searchRoot(newRoot, criteria, i);
+                    if (currRoot) {
+                        recursiveRangeQuery(qcTree, criteria.next, currRoot, index + 1, results, query);
+                    }
+                }
+            }
+        }
+    }
+
+
     function pickLast(qNode) {
         if (qNode.value !== undefined && qNode.value !== null) {
             return qNode;
@@ -118,9 +165,18 @@ var QE = {};
         this.index = index;
         this.value = value;
         this.next = null;
-        this.matches = function(node) {
-            return (this.index === node.dimNumber) && (this.value === node.label);
+        this.matches = function(node, valueIndex) {
+            var firstValue;
+            firstValue = (isArray(this.value))? this.value[valueIndex] : this.value;
+            return (this.index === node.dimNumber) && (firstValue === node.label);
         };
+        this.last = function() {
+            return ((this.next && this.next.last()) || this);
+        };
+    }
+
+    function isArray(value) {
+        return (value && Object.prototype.toString.call(value) == '[object Array]');
     }
 
 }).call(QE);
