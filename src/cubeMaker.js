@@ -4,23 +4,34 @@ var CB = {};
 (function(){
     "use strict";
 
-    var tableData, factIndex, tempClasses, star, dimCount;
+    var tableData, factIndex, tempClasses, star, dimCount, tcIndex, aggOperation;
 
     star = '*';
-    
-    this.createCube = function(tableData) {
+    // since tempclasses are arrays, indices of each field
+    tcIndex = {
+        classId : 0,
+        upperBound : 1,
+        lowerBound : 2,
+        dimNumber : 3,
+        aggregate : 4,
+        parentId : 5 
+    };
+
+    this.createCube = function(tableData, aggOperation) {
         var qcTree;
-        configure(tableData);
+        configure(tableData, aggOperation);
         tempClasses = createTempClasses(dimCount, tableData, factIndex);
-        tempClasses = sortTempClasses(tempClasses);
+        tempClasses = tempClasses.sort(compareTempClasses);
         qcTree = createQCTree(tempClasses);
+        cleanup();
         return qcTree;
     };
 
-    function configure(pTableData) {
+    function configure(pTableData, pAggOperation) {
         tableData = pTableData;
         dimCount = tableData[0].length - 1;
         factIndex = dimCount;
+        aggOperation = pAggOperation || computeSum;
     }
 
     function createTempClasses() {
@@ -28,33 +39,55 @@ var CB = {};
         tempClasses = [];
 
         allStarNode = createAllStarNode(dimCount);
-        dfs(allStarNode, createNaturalNumberArray(tableData.length), 0);
+        dfs(allStarNode, createNaturalNumberArray(tableData.length), 0, -1);
 
         return tempClasses;
     }
 
-    function sortTempClasses(tempClasses) {
-        return tempClasses.sort(function(clazz1, clazz2) {
+    /**
+      * Array.sort is not guaranteed to be stable by ECMAScript
+      */
+    function compareTempClasses(clazz1, clazz2) {
+        if (('' + clazz1[1]) === ('' + clazz2[1])) {
+            // upper bounds are equal so reverse on lower bounds
+            return (clazz1[2] < clazz2[2])? 1:-1;
+        } else {
             return (clazz1[1] < clazz2[1])? -1:1;
-        });
+        }
     }
 
     function createQCTree(tempClasses) {
-        var qcTree, lastUB, currentUB, i;
+        var qcTree, lastUB, currentUB, i, classIdVsNodeMap, currentTC, lastNode, parentIdNode;
+
         qcTree = {};
-        qcTree.root = new QNode('root', -1, tempClasses[0][4]);
-        lastUB = tempClasses[0][1];
+        classIdVsNodeMap = {};
+        currentTC = tempClasses[0];
+        lastNode = new QNode(star, -1);
+        lastNode.setValueAndUpperBound(currentTC);
+
+        qcTree.root = lastNode;
+        lastUB = lastNode.upperBound;
+        classIdVsNodeMap[currentTC[tcIndex.classId]]  = lastNode;
 
         for ( i = 1; i < tempClasses.length; i++) {
-            currentUB = tempClasses[i][1];
+            currentTC = tempClasses[i];
+            currentUB = currentTC[tcIndex.upperBound];
             if (isEqual(currentUB, lastUB)) {
-                //TODO create edge between current ub and last UB for the dim on which they differ
+                parentIdNode = classIdVsNodeMap[currentTC[tcIndex.parentId]];
+                addEdge(qcTree, currentTC[tcIndex.lowerBound], parentIdNode, lastNode);
             } else {
-                insertNodes(qcTree, currentUB, tempClasses[i][4]);
+                lastNode = insertNodesAndGetLeafNode(qcTree, currentUB, currentTC);
+                classIdVsNodeMap[currentTC[tcIndex.classId]] = lastNode;
                 lastUB = currentUB;
             }
         }
         return qcTree;
+    }
+
+    function cleanup() {
+        // cleanup after the tree
+        tempClasses = null;
+        tableData = null;
     }
 
     function createAllStarNode(wildCardCount) {
@@ -65,7 +98,11 @@ var CB = {};
         return node;
     }
 
-    function dfs(lowerBound, dataIndices, dimNumber, pId) {
+    /**
+      * pid is called chdID in the original paper, they mean the class is a child of chdId, we are
+      * calling it parentID instead.
+      */
+    function dfs(lowerBound, dataIndices, dimNumber, parentId) {
         var aggregate, stats, classId, upperBound, tempClass;
 
         // if there are no elements in the partition, we can skip it
@@ -75,18 +112,18 @@ var CB = {};
         stats = new CompositeStat(dimCount);
         classId = tempClasses.length;
 
-        aggregate = collectStatsAndAdd(computeSum, dataIndices, stats);
+        aggregate = collectStatsAndAdd(aggOperation, dataIndices, stats);
         upperBound = computeUpperBound(stats, lowerBound, dimCount);
 
         // we do not handle multiple measures yet
-        tempClass = [classId, upperBound, lowerBound, dimNumber, aggregate];
+        tempClass = [classId, upperBound, lowerBound, dimNumber, aggregate, parentId];
         tempClasses.push(tempClass);
         
         if (redundantCompute(dimNumber, lowerBound, upperBound)) {
             return;
         }
 
-        processChildren(dimNumber, upperBound, stats);
+        processChildren(dimNumber, upperBound, stats, classId);
     }
 
 
@@ -99,10 +136,10 @@ var CB = {};
             rowIndex = partition[i];
             row = tableData[rowIndex];
             value = row[factIndex];
-            total = aggOperation.call(value, total);
+            total = aggOperation.call(null, value, total);
             for (j = 0; j < dimCount; j++) {
                 dimValue = row[j];
-                dimStats.set(j, dimValue, i);
+                dimStats.set(j, dimValue, rowIndex);
             }
         }
         return total;
@@ -140,7 +177,7 @@ var CB = {};
         return false;
     }
 
-    function processChildren(dimNumber, upperBound, stats) {
+    function processChildren(dimNumber, upperBound, stats, parentId) {
         var i, partitions, partition, j;
 
         for ( i = dimNumber; i < dimCount; i++) {
@@ -148,7 +185,7 @@ var CB = {};
                 partitions = createPartitions(stats, i, upperBound);
                 for ( j = 0; j < partitions.length; j++) {
                     partition = partitions[j];
-                    dfs(partition.lowerBound, partition.dataIndices, partition.dimNumber);
+                    dfs(partition.lowerBound, partition.dataIndices, partition.dimNumber, parentId);
                 }
             }
         }
@@ -182,8 +219,13 @@ var CB = {};
         return naturalNumbers;
     }
     
-    function insertNodes(tree, upperBound, value) {
+    /**
+       * Inserts all the nodes needed for the upper bound returning the leaf Node
+       *
+       */ 
+    function insertNodesAndGetLeafNode(tree, upperBound, tempClass) {
         var i, dimValue, parentNode, childNode;
+
         parentNode = tree.root;
         // insert all the non * as nodes in the tree
         for ( i = 0; i < upperBound.length; i++) {
@@ -195,7 +237,8 @@ var CB = {};
                 } else {
                     childNode = new QNode(dimValue, i);
                     if ( noStarAfterThis(upperBound, i)) {
-                        childNode.value = value;
+                        childNode.value = tempClass[tcIndex.aggregate];
+                        childNode.upperBound = tempClass[tcIndex.upperBound];
                         childNode.isLeaf = true;
                     }
                     parentNode.addChild(childNode);
@@ -203,6 +246,7 @@ var CB = {};
                 }
             }
         }
+        return childNode;
     }
 
     function noStarAfterThis(valueArray, currentIndex) {
@@ -213,6 +257,21 @@ var CB = {};
             }
         }
         return true;
+    }
+
+    function  addEdge(tree, tcLowerBound, parentNode, endNode) {
+        var i, currentDimValue, parentUpperBound, qLink;
+        
+        // Find the first dim D s.t.ub:D = * && lb:D != *
+        parentUpperBound = parentNode.upperBound;
+
+        for ( i = 0; i < tcLowerBound.length; i++) {
+            currentDimValue = tcLowerBound[i];
+            if (currentDimValue !== star && parentUpperBound[i] === star) {
+                qLink = new QLink(currentDimValue, i);
+                parentNode.link(qLink, endNode);
+            }
+        }
     }
 
     /**
@@ -260,13 +319,15 @@ var CB = {};
     /**
       * A node that captures label, value and children
       */
-    function QNode(label, dimNumber, value, isLeaf) {
+    function QNode(label, dimNumber) {
         this.label = label;
-        this.value = value;
-        this.children = [];
-        this.edges = [];
         this.dimNumber = dimNumber;
-        this.isLeaf = (isLeaf)? true:false;
+        this.value = null;
+        this.upperBound = null;
+
+        this.isLeaf = false;
+        this.children = [];
+        this.links = [];
     }
 
     (function(){
@@ -283,14 +344,23 @@ var CB = {};
             }
             return null;
         };
+        this.setValueAndUpperBound = function(tempClass) {
+            this.value = tempClass[tcIndex.aggregate];
+            this.upperBound = tempClass[tcIndex.upperBound];
+        };
+        this.link = function(qLink, linkEnd) {
+            qLink.end = linkEnd;
+            this.links.push(qLink);
+        };
     }).call(QNode.prototype);
 
     /**
       * Named Link to any other node.
       */
-    function QLink(label, endNode) {
+    function QLink(label, dimNumber) {
         this.label = label;
-        this.endNode = endNode;
+        this.dimNumber = dimNumber;
+        this.end = null;
     }
 
     function cloneArray(original) {
@@ -302,6 +372,13 @@ var CB = {};
     function isEqual(a1, a2) {
         return (a1.toString() === a2.toString());
     }
+    function prettyFormat(tempClasses) {
+        var str = "";
+        tempClasses.forEach(function(clazz) {
+            str +=  clazz[0] + ", ("+clazz[1] +"), ("+clazz[2] +"), " + clazz[3] + ", " + clazz[4] + ", " + clazz[5] + '\n';
+        });
+        return str;
+    }
 
     /**
       * Ideally we do not need to see the guts of the implementation, however for 
@@ -309,13 +386,13 @@ var CB = {};
       * methods. So exportTo exports the internal methods out for testing. In actual
       * production we should not need this at all.
       */
-    function exportTo(nameSpaceHolder) {
+    this.exportTo = function(nameSpaceHolder) {
         nameSpaceHolder.computeUpperBound = computeUpperBound;
         nameSpaceHolder.createTempClasses = createTempClasses;
         nameSpaceHolder.configure = configure;
-        nameSpaceHolder.sortTempClasses = sortTempClasses;
+        nameSpaceHolder.compareTempClasses = compareTempClasses;
         nameSpaceHolder.createQCTree = createQCTree;
-    }
+        nameSpaceHolder.prettyFormat = prettyFormat;
+    };
 
-    this.exportTo = exportTo;
 }).call(CB);
