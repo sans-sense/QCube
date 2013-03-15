@@ -57,10 +57,36 @@ var QE = {};
         }
 
         if (newRoot)  {
-            value = getNodeValue(newRoot);
+            value = getNodeWithValue(newRoot).value;
         }
         return value;
     }
+
+    /**
+      *  Function rangeQuery(q; newRoot; i)
+      *  base case;
+      * if i > the last non-* dimension in q,
+      *if newRoot = NULL. do nothing;
+      *if newRoot has aggregate value
+      *Add its aggregate to results
+      *else
+      *Keep picking the child with a value on the last
+      *dimension until we reach a node with aggregate value,
+      *add its aggregate to results.
+      *return;
+      * recursion;
+      *if in q, i is not a range dimension
+      *Call searchRoute(newRoot; vi),
+      *Let newRoot be the return node
+      *if newRoot is not NULL
+      *Call rangeQuery(q; newRoot; i + 1)
+      *
+      *else, for each value vim in the range
+      *Call searchRoute(newRoot; vim),
+      *Let newRoot be the return node
+      *if newRoot is not NULL
+      *Call rangeQuery(q; newRoot; i + 1)
+      */
 
     function doRangeQuery(qcTree, query) {
         var criteria, results;
@@ -114,24 +140,21 @@ var QE = {};
         return null;
     }
 
-    function getNodeValue(qNode) {
-        var value;
-        if (qNode.value !== null) {
-            value = qNode.value;
-        } else {
-            // keep picking the child corresponding to the last dimension 
-            // of the current node till we hit one with aggregate
-            value = pickLast(qNode).value;
-        }
-        return value;
+    function getNodeWithValue(qNode) {
+        var nodeWithAgg;
+        nodeWithAgg = (qNode.value !== null)? qNode : pickLast(qNode);
+        return nodeWithAgg;
     }
 
 
     function recursiveRangeQuery(qcTree, criteria, newRoot, index, results, query) {
-        var  currRoot, i;
-        if (!(criteria) || (index > criteria.last().index)) {
+        var  currRoot, i, nodeWithValue, result;
+        if (!criteria) {
             if (newRoot) {
-                results.push(getNodeValue(newRoot));
+                nodeWithValue = getNodeWithValue(newRoot);
+                result = {};
+                result[nodeWithValue.upperBound] = nodeWithValue.value;
+                results.push(result);
             }
         }
 

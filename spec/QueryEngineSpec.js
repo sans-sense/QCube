@@ -30,6 +30,15 @@ describe("QueryEngine", function() {
     });
 
     it('for [[S1, S2, S3], [P1, P3], s] gives 6', function(){
-        expect(QE.find(this.qcTree, [['S1','S2','S3'], ['P1','P3'], 's'])).toEqual([6]);
+        expect(QE.find(this.qcTree, [['S1','S2','S3'], ['P1','P3'], 's'])).toEqual([{ 'S1,P1,s' : 6 }]);
     });
+
+    it('for [[S1, S2, S3], [P1, P2], s] gives 6 and 12', function(){
+        expect(QE.find(this.qcTree, [['S1','S2','S3'], ['P1','P2'], 's'])).toEqual([{'S1,P1,s' : 6}, { 'S1,P2,s' : 12}]);
+    });
+
+    it('for [[S1, S2, S3], [P1, P2], *] gives 6, 12 and 9', function(){
+        expect(QE.find(this.qcTree, [['S1','S2','S3'], ['P1','P2'], '*'])).toEqual([ { 'S1,P1,s' : 6 }, { 'S1,P2,s' : 12 }, { 'S2,P1,f' : 9 } ]);
+    });
+
 });
