@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>QCube Internals</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
+   <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+   <script src="../lib/require.js"></script>
+   <script src="./main.js"> </script>
+   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">QCube Internals</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="https://github.com/imaginea/QCube">About</a></li>
+              <li><a href="http://www.imaginea.com">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container-fluid">
+      <h1>QCube Internals</h1>
+      <p>A basic demo of with intermediate steps used for computing a QC Tree. </p>
+      <div class="row-fluid">
+        <div class="span3">
+          <p class="lead"><strong>Sales Data</strong></p>
+          <table class="table table-bordered" id="salesData">
+            <thead>
+              <tr>
+                <th>Store</th>
+                <th>Product</th>
+                <th>Season</th>
+                <th>Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>S1</td><td>P1</td><td>s</td><td>6</td>
+              </tr>
+              <tr>
+                <td>S1</td><td>P2</td><td>s</td><td>12</td>
+              </tr>
+              <tr>
+                <td>S2</td><td>P1</td><td>f</td><td>9</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><a class="btn btn-primary" href="#">Recompute</a></p>
+        </div>
+
+        <div class="span3">
+          <p class="lead"><strong>Temp Classes</strong></p>
+          <div id="tempClasses">
+          </div>
+        </div><!-- end of div for tempclasses -->
+        
+        <div class="span3">
+          <p class="lead"><strong> Sorted Temp Classes</strong></p>
+        </div><!-- end of div for sorted tempclasses -->
+
+        <div class="span3">
+          <p class="lead"><strong>Actual Tree</strong></p>
+        </div>
+
+        </div><!-- Actual tree representation -->
+      </div>
+    </div>
+</div><!--/.fluid-container-->
+</body>
+</html>
+

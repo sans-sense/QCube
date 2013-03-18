@@ -21,7 +21,8 @@ module.exports = function(grunt) {
         jasmine : {
             src : '<%= meta.src %>',
             options : {
-                specs : '<%= meta.specs %>'
+                specs : '<%= meta.specs %>',
+                template: './spec/RequireRunner.html'
             }
         },
         uglify: {

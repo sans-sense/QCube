@@ -1,0 +1,34 @@
+<!doctype html>
+<!-- Template for jasmine runner, we make jasmine tests totally unaware of require, by exporting required modules to window in this template -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Jasmine Spec Runner</title>
+<% css.forEach(function(style){ %>
+  <link rel="stylesheet" type="text/css" href="<%= style %>">
+<% }) %>
+
+<script type="text/javascript" src="./lib/require.js"></script>
+<% with (scripts) { %>
+  <% [].concat(jasmine, vendor, helpers, specs, reporters).forEach(function(script){ %>
+  <script src="<%= script %>"></script>
+  <% }) %>
+<% }; %>
+<script type="text/javascript">
+     srcRequire = require.config({
+         baseUrl: "./src/",
+     });
+     srcRequire(['cubeMaker', 'queryEngine', 'qcube', 'dataSource'], function(cubeMaker, queryEngine, qcube, dataSource) {
+         window.CB = cubeMaker;
+         window.QE = queryEngine;
+         window.QC = qcube;
+         window.DS = dataSource;
+         jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+         jasmine.getEnv().execute();
+     });
+</script>
+
+</head>
+<body>
+</body>
+</html>
