@@ -16,7 +16,29 @@
     </style>
    <script src="../lib/require.js"></script>
    <script src="./main.js"> </script>
-   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+   <script src="./lib/jquery-1.9.1.js"></script>
+   <script src="./lib/handlebars.js"></script>
+
+   <script id="array-to-table-template" type="text/x-handlebars-template">
+     <table class='table table-bordered table-condensed table-striped' >
+       <thead>
+         <tr>
+           {{#each names}}
+           <th>{{.}}</th>
+           {{/each}}
+         </tr>
+       </thead>
+       <tbody>
+         {{#each rows}}
+         <tr>
+           {{#each .}}
+           <td>{{.}}</td>
+           {{/each}}
+         </tr>
+         {{/each}}
+       </tbody>
+     </table>
+   </script>
 
   </head>
   <body>
@@ -42,7 +64,7 @@
 
     <div class="container-fluid">
       <h1>QCube Internals</h1>
-      <p>A basic demo of with intermediate steps used for computing a QC Tree. </p>
+      <p>A basic demo of sales data with intermediate steps used for computing a QC Tree. </p>
       <div class="row-fluid">
         <div class="span3">
           <p class="lead"><strong>Sales Data</strong></p>
@@ -78,10 +100,14 @@
         
         <div class="span3">
           <p class="lead"><strong> Sorted Temp Classes</strong></p>
+          <div id="sortedTempClasses">
+          </div>
         </div><!-- end of div for sorted tempclasses -->
 
         <div class="span3">
           <p class="lead"><strong>Actual Tree</strong></p>
+          <div id="qcTree">
+          </div>
         </div>
 
         </div><!-- Actual tree representation -->

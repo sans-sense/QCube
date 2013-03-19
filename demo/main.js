@@ -3,6 +3,8 @@ var srcRequire = require.config({
 });
 window.onload = function() {
     srcRequire(['cubeMaker', 'queryEngine'], function(cubeMaker, queryEngine) {
+        var tempClasses, source, template, tempHTML, columnNames;
+        columnNames = ['id', 'ub', 'lb', 'dim', 'agg', 'pid'];
         window.cubeMaker = cubeMaker;
         window.queryEngine = queryEngine;
         var tableData = $('#salesData tbody tr').map(function(){
@@ -14,8 +16,16 @@ window.onload = function() {
         var cubeInternals = {};
         cubeMaker.exportTo(cubeInternals, function sum(value, total){ return total + parseInt(value);});
         cubeInternals.configure(tableData);
-        var tempClasses = cubeInternals.createTempClasses(tableData);
-        $(tempClasses).map(function(){return {id:this[0], ub:this[1], lb:this[2], value:this[4]};}).get();
+        tempClasses = cubeInternals.createTempClasses(tableData);
+        source   = $("#array-to-table-template").html();
+        template = Handlebars.compile(source);
+
+        $('#tempClasses table').remove();
+        $('#tempClasses').append(template({names: columnNames, rows: tempClasses}));
+
+        tempClasses = tempClasses.sort(cubeInternals.compareTempClasses);
+        $('#sortedTempClasses table').remove();
+        $('#sortedTempClasses').append(template({names: columnNames, rows: tempClasses}));
     });
 }
 
