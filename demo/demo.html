@@ -8,16 +8,49 @@
    <style type="text/css">
       body {
         padding-top: 60px;
-        padding-bottom: 40px;
       }
       .sidebar-nav {
         padding: 9px 0;
       }
+
+      .node circle {
+      cursor: pointer;
+      fill: #fff;
+      stroke: steelblue;
+      stroke-width: 1.5px;
+      }
+
+      .node text {
+      font-size: 11px;
+      }
+
+      path.link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 1.5px;
+      }
+
+      path.nelink {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 1.5px;
+      stroke-dasharray:4 4
+      }
+      [class*="span"]  > p.lead {
+         text-align : center;
+      }
+
+      .content [class*="span"] {
+      margin-left: 0;
+      padding: 10px;
+      border: 1px solid #eee;
+      }
     </style>
    <script src="../lib/require.js"></script>
-   <script src="./main.js"> </script>
+   <script src="./demo.js"> </script>
    <script src="./lib/jquery-1.9.1.js"></script>
-   <script src="./lib/handlebars.js"></script>
+   <script src="./lib/handlebars-1.0.0-rc.3.js"></script>
+   <script src="./lib/d3-3.0.8.min.js"></script>
 
    <script id="array-to-table-template" type="text/x-handlebars-template">
      <table class='table table-bordered table-condensed table-striped' >
@@ -65,7 +98,7 @@
     <div class="container-fluid">
       <h1>QCube Internals</h1>
       <p>A basic demo of sales data with intermediate steps used for computing a QC Tree. </p>
-      <div class="row-fluid">
+      <div class="row-fluid content">
         <div class="span3">
           <p class="lead"><strong>Sales Data</strong></p>
           <table class="table table-bordered" id="salesData">
@@ -89,7 +122,6 @@
               </tr>
             </tbody>
           </table>
-          <p><a class="btn btn-primary" href="#">Recompute</a></p>
         </div>
 
         <div class="span3">
