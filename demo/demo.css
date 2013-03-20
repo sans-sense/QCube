@@ -1,0 +1,39 @@
+body {
+    padding-top: 60px;
+}
+.sidebar-nav {
+    padding: 9px 0;
+}
+
+.node circle {
+    cursor: pointer;
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.node text {
+    font-size: 11px;
+}
+
+path.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+path.nelink {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+    stroke-dasharray:4 4
+}
+[class*="span"]  > p.lead {
+    text-align : center;
+}
+
+.content [class*="span"] {
+    margin-left: 0;
+    padding: 10px;
+    border: 1px solid #eee;
+}

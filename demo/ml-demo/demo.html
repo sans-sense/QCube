@@ -3,7 +3,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>QCube Demo</title>
-    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../lib/bootstrap.min.2.1.0.css">
+    <link rel="stylesheet" type="text/css" href="../demo.css">
    <style type="text/css">
       body {
         padding-top: 60px;
@@ -13,68 +14,26 @@
         padding: 9px 0;
       }
     </style>
-   <script src="../../lib/jquery.min.js"></script>
-   <script src="../../lib/underscore-min.js"></script>
-   <script src="../../src/qcube.js"></script>
-   <script src="../common/pivot.js"></script>
-   <script src="../common/demo.ui.js"></script>
-   <script src="../common/demo.js"></script>
-   <script>
-   var de = demoExports;
-   de['measure'] = 'Rating';
-   de['eventManager'].on('cube-computed', function(treeData) {
-       var avgRating = treeData["1:{Rating}"];
-       $('#cube_summary').html("Average rating of movies analyzed is "+ avgRating);
-       $('table').find("tbody tr").remove();
-       $('table').find('tbody')
-           .append($('<tr>')
-                   .append($('<td>').text(avgRating))
-                  );
-   });
-$(function(){
-       (function addToggleBehavior() {
-           var targetBtn = 'button#toggle-data';
-           $(targetBtn).click(function(){ 
-               var btnHtml;
-               $('div.data').toggle(); 
-               btnHtml =  (($('div.data:visible').length > 0)? 'Hide':'Show') + ' Data';
-               $(targetBtn).html(btnHtml);
-           });
-       }()); // end of add toggle
-   
-       $('button#compute-tree').click(function(){         
-           var domainInstances = createDomainInstances();
-           demoExports.computeQCTree(domainInstances);
-       });
-       
-   
-       // read the inputs and create the domain instances
-       function createDomainInstances(){
-           var domainInstances = {};
-           $('div.data textarea').each(function() {
-               var elementId = this.id, elementType, values, currentDomainInstance;
-               elementType = elementId.substring(9);
-               elementType = elementType[0].toUpperCase() + elementType.substring(1);
-               domainInstances[elementType] = [];
-               values = this.value.split('\n');
-               _.each(values, function(value, index) {
-                   if (value.trim().length > 0) {
-                       currentDomainInstance = demoExports['dm'][elementType].create(value.trim());
-                       if (currentDomainInstance.id) {
-                           domainInstances[elementType][currentDomainInstance.id] = currentDomainInstance
-                       } else {
-                           domainInstances[elementType].push(currentDomainInstance);
-                       }
-                   }
-               });
-           });
-           demoExports['di'] = domainInstances;
-           return domainInstances;
-       }
-   
-       $('button#compute-tree').click();
-});
-
+   <script src="../lib/jquery-1.9.1.js"></script>
+   <script src="../lib/handlebars-1.0.0-rc.3.js"></script>
+   <script src="../lib/d3-3.0.8.min.js"></script>
+   <script src="../lib/underscore-min.js"></script>
+   <script src="../../lib/require.js"></script>
+   <script src="../demo.js"> </script>
+   <script src="./demo.js"> </script>
+   <script src="../common/model.js"></script>
+    <script id="array-to-table-template" type="text/x-handlebars-template">
+     <table class='table table-bordered table-condensed table-striped' >
+       <tbody>
+         {{#each .}}
+         <tr>
+           {{#each .}}
+           <td>{{.}}</td>
+           {{/each}}
+         </tr>
+         {{/each}}
+       </tbody>
+     </table>
    </script>
 
   </head>
@@ -100,6 +59,21 @@ $(function(){
 
 
 <div class="container-fluid">
+  <ul class="nav nav-tabs" id="myTab">
+    <li class="active"><a href="#home">Home</a></li>
+    <li><a href="#tree">Tree</a></li>
+    <li><a href="#tableData">Tabular Data</a></li>
+    <li><a href="#actualData">ActualData</a></li>
+  </ul>
+  
+  <div class="tab-content">
+    <div class="tab-pane" id="tree">
+      <div id="qcTree"></div>
+    </div>
+    <div class="tab-pane" id="tableData">
+    </div>
+    <div class="tab-pane active" id="home">
+
       <div class="row-fluid">
         <div class="span3">
           <div class="well sidebar-nav facts">
@@ -143,13 +117,14 @@ $(function(){
               </tbody>
             </table>
             <br/>
-            <button id="toggle-data" class="btn btn-secondary btn-mini">Show Data</button>
-            <button id="compute-tree" class="btn btn-secondary btn-mini">Recompute Tree</button>
           </div><!--/row-->
-
-          <div class="data well" style="display:none">
-            <div class="span3">
-              Movie Data
+          </div>
+        </div>
+    </div>
+      <div class="tab-pane" id="actualData">
+          <div class="data well" >
+            <div class="span4">
+              <p>Movie Data</p>
               <textarea id="txt_area_movie" class="dimension">
 1::Toy Story (1995)::Animation|Children's|Comedy
 2::Jumanji (1995)::Adventure|Children's|Fantasy
@@ -4037,8 +4012,8 @@ $(function(){
               </textarea>
             </div>
             
-            <div class="span3">
-              User Data
+            <div class="span4">
+              <p>User Data</p>
               <textarea id="txt_area_user" class="dimension">
 1::F::1::10::48067
 2::M::56::16::70072
@@ -10083,8 +10058,8 @@ $(function(){
               </textarea>
               </div>
 
-            <div class="span3">
-              Ratings
+            <div class="span4">
+              <p>Ratings</p>
               <textarea id="txt_area_rating" class="fact">
 1::1193::5::978300760
 1::661::3::978302109
@@ -11293,7 +11268,8 @@ $(function(){
 
         </div><!--/span-->
       </div><!--/row-->
-
+  </div>
+</div>
       <hr>
 
       <footer>
@@ -11301,6 +11277,6 @@ $(function(){
       </footer>
 
     </div><!--/.fluid-container-->
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>    
+    <script src="../lib/bootstrap.min.2.1.0.js"></script>    
   </body>
 </html>

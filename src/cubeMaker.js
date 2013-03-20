@@ -31,7 +31,7 @@ define(function(require) {
             tableData = pTableData;
             dimCount = tableData[0].length - 1;
             factIndex = dimCount;
-            aggOperation = pAggOperation || computeSum;
+            aggOperation = pAggOperation || { start: 0, iterativeOperation : sumOperation, summaryOperation:null};
         }
 
         function createTempClasses() {
@@ -112,7 +112,7 @@ define(function(require) {
             stats = new CompositeStat(dimCount);
             classId = tempClasses.length;
 
-            aggregate = collectStatsAndAdd(aggOperation, dataIndices, stats);
+            aggregate = collectStatsAndCompute(aggOperation, dataIndices, stats);
             upperBound = computeUpperBound(stats, lowerBound, dimCount);
 
             // we do not handle multiple measures yet
@@ -127,20 +127,22 @@ define(function(require) {
         }
 
 
-        // TODO this should handle any operation, meaning we need to get the initial value and then incrementatlly operate, something like iteratee
         // TODO: performance: currently this is run for every partition, this means for the same n records it works again and again
-        function collectStatsAndAdd(aggOperation, partition, dimStats) {
+        function collectStatsAndCompute(aggOperation, partition, dimStats) {
             var i, total, value, row, j, dimValue, dimStat, rowIndex;
-            total = 0;
+            total = aggOperation.start;
             for (i = 0; i < partition.length; i++) {
                 rowIndex = partition[i];
                 row = tableData[rowIndex];
                 value = row[factIndex];
-                total = aggOperation.call(null, value, total);
+                total = aggOperation.iterativeOperation.call(null, value, total);
                 for (j = 0; j < dimCount; j++) {
                     dimValue = row[j];
                     dimStats.set(j, dimValue, rowIndex);
                 }
+            }
+            if (aggOperation.summaryOperation) {
+                total = aggOperation.summaryOperation.call(null, total, partition);
             }
             return total;
         }
@@ -207,7 +209,7 @@ define(function(require) {
         }
 
 
-        function computeSum(value, total) {
+        function sumOperation(value, total) {
             return total + parseInt(value, 10);
         }
 
@@ -263,14 +265,18 @@ define(function(require) {
             var i, currentDimValue, parentUpperBound, qLink;
             
             // Find the first dim D s.t.ub:D = * && lb:D != *
-            parentUpperBound = parentNode.upperBound;
+            if (parentNode) {
+                parentUpperBound = parentNode.upperBound;
 
-            for ( i = 0; i < tcLowerBound.length; i++) {
-                currentDimValue = tcLowerBound[i];
-                if (currentDimValue !== star && parentUpperBound[i] === star) {
-                    qLink = new QLink(currentDimValue, i);
-                    parentNode.link(qLink, endNode);
+                for ( i = 0; i < tcLowerBound.length; i++) {
+                    currentDimValue = tcLowerBound[i];
+                    if (currentDimValue !== star && parentUpperBound[i] === star) {
+                        qLink = new QLink(currentDimValue, i);
+                        parentNode.link(qLink, endNode);
+                    }
                 }
+            } else {
+                return;
             }
         }
 
