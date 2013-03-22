@@ -16,16 +16,24 @@
     </style>
    <script src="../lib/jquery-1.9.1.js"></script>
    <script src="../lib/handlebars-1.0.0-rc.3.js"></script>
-   <script src="../lib/d3-3.0.8.min.js"></script>
+   <script src="../lib/d3-3.0.8.js"></script>
    <script src="../lib/underscore-min.js"></script>
    <script src="../../lib/require.js"></script>
    <script src="../demo.js"> </script>
    <script src="./demo.js"> </script>
    <script src="../common/model.js"></script>
+
     <script id="array-to-table-template" type="text/x-handlebars-template">
      <table class='table table-bordered table-condensed table-striped' >
+       <thead>
+         <tr>
+         {{#each headers}}
+           <th>{{ .}}</th>
+         {{/each}}
+           </tr>
+       </thead>
        <tbody>
-         {{#each .}}
+         {{#each rows}}
          <tr>
            {{#each .}}
            <td>{{.}}</td>
@@ -73,53 +81,13 @@
     <div class="tab-pane" id="tableData">
     </div>
     <div class="tab-pane active" id="home">
+      <div id="plotContent" class="row-fluid content">
+        <span id="femalePlot" >
+        </span>
 
-      <div class="row-fluid">
-        <div class="span3">
-          <div class="well sidebar-nav facts">
-            <ul class="nav nav-list">
-              <li class="nav-header">Fact</li>
-              <li ><a href="#movie">Ratings</a></li>
-            </ul>
-          </div>
-          <div class="well sidebar-nav dimensions">
-            <ul class="nav nav-list">
-              <li class="nav-header">Dimension</li>
-              <li><a href="#user">User</a>
-                <ul>
-                  <li><a href="#Gender">Gender</a></li>
-                  <li><a href="#Age">Age</a></li>
-                  <li><a href="#Occupation">Occupation</a></li>
-                </ul>
-              </li>
-              <li><a href="#movie">Movie</a>
-                <ul>
-                  <li><a href="#Period">Period</a></li>
-              </li>
-              </ul>
-          </div><!--/.well -->
-        </div><!--/span-->
-
-        <div class="span9">
-          <p class="lead">Movie Lens Demo - Demo of 1K records of the 1M records for Movie Lens ratings</p>
-          <div class="report well">
-            <p><strong>Summary : </strong><span id="cube_summary"></span></p>
-            
-            <p class="pull-right"><small>Drag the dimensions to view averages at those levels</small></p>
-
-            <table id="report-table" class="table table-bordered" >
-              <thead>
-                <tr>
-                  <th>Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-            <br/>
-          </div><!--/row-->
-          </div>
-        </div>
+       <span id="malePlot" >
+        </span>
+      </div>
     </div>
       <div class="tab-pane" id="actualData">
           <div class="data well" >

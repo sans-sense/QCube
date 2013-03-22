@@ -41,4 +41,12 @@ describe("QueryEngine", function() {
         expect(QE.find(this.qcTree, [['S1','S2','S3'], ['P1','P2'], '*'])).toEqual([ { 'S1,P1,s' : 6 }, { 'S1,P2,s' : 12 }, { 'S2,P1,f' : 9 } ]);
     });
 
+    it('for [*, [P1,P2],*] gives 15 and 12', function(){
+        expect(QE.find(this.qcTree, ['*', ['P1','P2'], '*'])).toEqual([ { '*,P1,*' : 15 }, { 'S1,P2,s' : 12 }]);
+    });
+
+    it('for findAllDimensionValues dimension combination of that index should be displayed, for 0 gives S1,S2', function(){
+        expect(QE.findAllDimensionValues(this.qcTree, 0)).toEqual(['S1', 'S2']);
+    });
+
 });

@@ -4,7 +4,7 @@ define(function(require) {
     (function(){
         "use strict";
 
-        var tableData, factIndex, tempClasses, star, dimCount, tcIndex, aggOperation;
+        var tableData, factIndex, tempClasses, star, dimCount, tcIndex, aggOperation, cubeIndexStats;
 
         star = '*';
         // since tempclasses are arrays, indices of each field
@@ -59,7 +59,7 @@ define(function(require) {
         function createQCTree(tempClasses) {
             var qcTree, lastUB, currentUB, i, classIdVsNodeMap, currentTC, lastNode, parentIdNode;
 
-            qcTree = {};
+            qcTree = new QCTree();
             classIdVsNodeMap = {};
             currentTC = tempClasses[0];
             lastNode = new QNode(star, -1);
@@ -77,10 +77,14 @@ define(function(require) {
                     addEdge(qcTree, currentTC[tcIndex.lowerBound], parentIdNode, lastNode);
                 } else {
                     lastNode = insertNodesAndGetLeafNode(qcTree, currentUB, currentTC);
-                    classIdVsNodeMap[currentTC[tcIndex.classId]] = lastNode;
                     lastUB = currentUB;
                 }
+                classIdVsNodeMap[currentTC[tcIndex.classId]] = lastNode;
             }
+
+            // add the dimension information like the sort of values in each dimension
+            qcTree.addStats(cubeIndexStats);
+
             return qcTree;
         }
 
@@ -88,6 +92,7 @@ define(function(require) {
             // cleanup after the tree
             tempClasses = null;
             tableData = null;
+            cubeIndexStats = null;
         }
 
         function createAllStarNode(wildCardCount) {
@@ -143,6 +148,9 @@ define(function(require) {
             }
             if (aggOperation.summaryOperation) {
                 total = aggOperation.summaryOperation.call(null, total, partition);
+            }
+            if (!cubeIndexStats) {
+                cubeIndexStats = dimStats;
             }
             return total;
         }
@@ -275,7 +283,7 @@ define(function(require) {
                         parentNode.link(qLink, endNode);
                     }
                 }
-            } else {
+            }else {
                 return;
             }
         }
@@ -368,6 +376,21 @@ define(function(require) {
             this.dimNumber = dimNumber;
             this.end = null;
         }
+
+        function QCTree() {
+            this.dimensionStats = [];
+        }
+
+        (function(){
+            this.addStats = function(dimensionalStats) {
+                var i ;
+                if (dimensionalStats) {
+                    for (i = 0; i < dimCount; i++) {
+                        this.dimensionStats.push(dimensionalStats.get(i).order_keys);
+                    }
+                }
+            };
+        }).call(QCTree.prototype);
 
         function cloneArray(original) {
             var clonedArray = [];

@@ -17,6 +17,10 @@ define(function(require) {
             return doPointQuery(qcTree, query);
         };
 
+        this.findAllDimensionValues = function(qcTree, dimensionIndex) {
+            return qcTree.dimensionStats[dimensionIndex];
+        };
+
         /**
          * Output: aggregate value(s) of q.
          * Method:
@@ -126,7 +130,7 @@ define(function(require) {
                 
                 // if root points to any link
                 for (i = 0; i < root.links.length; i++) {
-                    if (criteria.matches(root.links[i].end, valueIndex)) {
+                    if (criteria.matches(root.links[i], valueIndex)) {
                         return root.links[i].end;
                     }
                 }
@@ -160,7 +164,7 @@ define(function(require) {
             }
 
             if (criteria) {
-                if (!isArray(query[index])) {
+                if (!isArray(query[criteria.index])) {
                     currRoot = searchRoot(newRoot, criteria);
                     if (currRoot) {
                         recursiveRangeQuery(qcTree, criteria.next, currRoot, index + 1, results, query);

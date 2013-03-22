@@ -2,11 +2,11 @@ var srcRequire = require.config({
     baseUrl: "../../src/",
 });
 
-var domainModels, domainInstances, tableData, qcTree;
+var domainModels, domainInstances, tableData, qcTree, cubeSpec, ratingData;
 window.onload = function() {
     srcRequire(['cubeMaker', 'queryEngine'], function(cubeMaker, queryEngine) {
-        var cubeSpec = {
-            dimensions: [ 'Period', 'Gender', 'Age', 'Occupation'],
+        cubeSpec = {
+            dimensions: [ 'Gender', 'Period', 'Age', 'Occupation'],
             measure: ['Rating'],
             aggregation: {
                 start: 0,
@@ -38,11 +38,93 @@ window.onload = function() {
             } else if (hash === 'tableData') {
                 if ($('#tableData table').size() < 1) {
                     template = Handlebars.compile($("#array-to-table-template").html());
-                    $('#tableData').append(template(tableData));
+                    $('#tableData').append(template({headers:[].concat(cubeSpec.dimensions).concat(cubeSpec.measure), rows:tableData}));
                 }
             }
         });
+
+        ratingData = createRatingData(queryEngine, qcTree);
+        createRatingPlot(ratingData.female, '#femalePlot');
+        createRatingPlot(ratingData.male, '#malePlot');
+
     });
+}
+
+function createRatingData(queryEngine, qcTree) {
+    var values = queryEngine.find(qcTree, [qcTree.dimensionStats[0],qcTree.dimensionStats[1],'*','*']);
+    var periodGenderRegex = /([M,F]),(\d{4}),*,*/;
+    var maleRatings, femaleRatings;
+    maleRatings = [];
+    femaleRatings = [];
+    values.forEach(function(result){
+        var key, dimCombination, value, dimSplits;
+        for (var key in result) {
+            dimCombination = key;
+            value = result[key]
+        }
+        
+        dimSplits = periodGenderRegex.exec(dimCombination);
+        if (dimSplits[1] === 'F') {
+            femaleRatings.push( { x:dimSplits[2], y: value });
+        } else {
+            maleRatings.push( { x:dimSplits[2], y: value });
+        }
+    });
+    return {
+        male:maleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
+        female:femaleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
+    }
+}
+
+function createRatingPlot(data, selectorId) {
+    var margin = {top: 20, right: 20, bottom: 20, left: 50},
+    width = 500 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+    var color = d3.scale.category10();
+    var svg = d3.select(selectorId).append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var x = d3.scale.linear().range([0, width]);
+    x.domain(d3.extent(data, function(d) {return d.x}));
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    var y = d3.scale.linear().range([height, 0]);
+    y.domain(d3.extent(data, function(d) {return d.y}));
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Rating");        
+
+    var line = d3.svg.line()
+        .x(function(d) { return x(d.x); })
+        .y(function(d) { return y(d.y); });
+
+    svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
 
 }
 
@@ -79,18 +161,13 @@ function flattenData(domainInstances) {
     var tableData = [];
     function getPeriod(yearString) {
         var year = parseInt(yearRegex.exec(yearString)[1]);
-        var diff = year - 1900;
-        if (diff < 80) {
-            return '1900-1980';
-        } else {
-            return ((diff % 2) === 0)? (year + '-' + (year + 1)):((year - 1) + '-' + year);
-        }
+        return year;
     }
     var ratings = domainInstances['Rating'], users = domainInstances['User'], movies = domainInstances['Movie'];
     und.each(ratings, function(rating) {
         var user = users[rating.UserID], movie = movies[rating.MovieID];
         if (user && movie) {
-            tableData.push([getPeriod(movie.Title) || 'uk', user.Gender || 'uk', user.Age || '0', user.Occupation || '0', rating.Rating]); 
+            tableData.push([user.Gender || 'uk', getPeriod(movie.Title) || 'uk',  user.Age || '0', user.Occupation || '0', rating.Rating]); 
         } else {
             console.log("could not find detail for "+rating);
         }
