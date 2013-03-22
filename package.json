@@ -1,10 +1,14 @@
 {
-  "name": "QCube",
-  "version": "0.1.0",
-  "devDependencies": {
-    "grunt": "~0.4.0",
-    "grunt-contrib-jshint": "~0.1.1",
-    "grunt-contrib-jasmine": "~0.3.4",
-    "grunt-contrib-uglify": "~0.1.2"
-  }
+    "name": "QCube",
+    "version": "0.1.0",
+    "devDependencies": {
+        "grunt": "~0.4.0",
+        "grunt-contrib-jshint": "~0.1.1",
+        "grunt-contrib-jasmine": "~0.3.4",
+        "grunt-contrib-uglify": "~0.1.2"
+    },
+    "dependencies": {
+        "amdefine" : "0.x.x"
+    },
+    "engine": "node >= 0.4.1"
 }

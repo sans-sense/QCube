@@ -1,3 +1,4 @@
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function(require) {
     var CB = {};
 
@@ -273,7 +274,7 @@ define(function(require) {
             var i, currentDimValue, parentUpperBound, qLink;
             
             // Find the first dim D s.t.ub:D = * && lb:D != *
-            if (parentNode) {
+            if (parentNode && parentNode.upperBound) {
                 parentUpperBound = parentNode.upperBound;
 
                 for ( i = 0; i < tcLowerBound.length; i++) {

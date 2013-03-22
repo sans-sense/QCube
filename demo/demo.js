@@ -1,9 +1,25 @@
 var srcRequire = require.config({
     baseUrl: "../src/",
+    shim: {
+        "handlebars": {
+            exports: 'Handlebars'
+        },
+        'd3' : {
+            exports :'d3'
+        },
+        'jquery': {
+            exports : '$'
+        }
+    },
+    paths: {
+        "handlebars" : '../demo/lib/handlebars-1.0.0-rc.3',
+        "d3" : '../demo/lib/d3-3.0.8.min',
+        "jquery" : '../demo/lib/jquery-1.9.1'
+    }
 });
 
 window.onload = function() {
-    srcRequire(['cubeMaker', 'queryEngine'], function(cubeMaker, queryEngine) {
+    srcRequire(['cubeMaker', 'queryEngine', 'handlebars', 'd3', 'jquery'], function(cubeMaker, queryEngine, Handlebars, d3, $) {
         var tempClasses, columnNames, cubeInternals, tableData, template;
         columnNames = ['id', 'ub', 'lb', 'dim', 'agg', 'pid'];
 
