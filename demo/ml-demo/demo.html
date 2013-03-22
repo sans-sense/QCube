@@ -5,6 +5,7 @@
     <title>QCube Demo</title>
     <link rel="stylesheet" type="text/css" href="../lib/bootstrap.min.2.1.0.css">
     <link rel="stylesheet" type="text/css" href="../demo.css">
+    <link rel="stylesheet" type="text/css" href="../lib/nv.d3.css">
    <style type="text/css">
       body {
         padding-top: 60px;
@@ -13,6 +14,11 @@
       .sidebar-nav {
         padding: 9px 0;
       }
+
+      #chart svg {
+      height: 400px;
+      }
+
     </style>
    <script src="../lib/jquery-1.9.1.js"></script>
    <script src="../lib/handlebars-1.0.0-rc.3.js"></script>
@@ -22,6 +28,7 @@
    <script src="../demo.js"> </script>
    <script src="./demo.js"> </script>
    <script src="../common/model.js"></script>
+   <script src="../lib/nv.d3.js"></script>
 
     <script id="array-to-table-template" type="text/x-handlebars-template">
      <table class='table table-bordered table-condensed table-striped' >
@@ -82,11 +89,10 @@
     </div>
     <div class="tab-pane active" id="home">
       <div id="plotContent" class="row-fluid content">
-        <span id="femalePlot" >
-        </span>
-
-       <span id="malePlot" >
-        </span>
+        <p>Ratings over time</p>
+       <div id="chart" >
+         <svg></svg>
+       </div>
       </div>
     </div>
       <div class="tab-pane" id="actualData">

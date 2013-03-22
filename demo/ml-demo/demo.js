@@ -44,9 +44,36 @@ window.onload = function() {
         });
 
         ratingData = createRatingData(queryEngine, qcTree);
-        createRatingPlot(ratingData.female, '#femalePlot');
-        createRatingPlot(ratingData.male, '#malePlot');
+        createRatingPlot(ratingData, '#chart');
 
+    });
+}
+
+function createRatingPlot(data, selectorId) {
+    var modData = [
+        {
+            values: data.female,
+            key: 'Female',
+            color: 'orange'
+        },
+        {
+            values: data.male,
+            key: 'Male',
+            color: '#2ca02c'
+        }
+    ];
+    nv.addGraph(function() {
+        var chart = nv.models.lineChart();
+        chart.xAxis
+            .axisLabel('Year');
+        chart.yAxis
+            .axisLabel('Rating')
+            .tickFormat(d3.format('.02f'));
+        d3.select('#chart svg')
+            .datum(modData)
+            .call(chart);
+        nv.utils.windowResize(chart.update);
+        return chart;
     });
 }
 
@@ -76,57 +103,6 @@ function createRatingData(queryEngine, qcTree) {
     }
 }
 
-function createRatingPlot(data, selectorId) {
-    var margin = {top: 20, right: 20, bottom: 20, left: 50},
-    width = 500 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
-
-    var color = d3.scale.category10();
-    var svg = d3.select(selectorId).append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var x = d3.scale.linear().range([0, width]);
-    x.domain(d3.extent(data, function(d) {return d.x}));
-
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom")
-
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    var y = d3.scale.linear().range([height, 0]);
-    y.domain(d3.extent(data, function(d) {return d.y}));
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Rating");        
-
-    var line = d3.svg.line()
-        .x(function(d) { return x(d.x); })
-        .y(function(d) { return y(d.y); });
-
-    svg.append("path")
-        .datum(data)
-        .attr("class", "line")
-        .attr("d", line);
-
-}
 
 function createDomainModels() {
     var domainModels = {};
