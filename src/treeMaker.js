@@ -18,7 +18,7 @@ define(function(require) {
             parentId : 5 
         };
 
-        this.createCube = function(tableData, aggOperation) {
+        this.createTree = function(tableData, aggOperation) {
             var qcTree;
             configure(tableData, aggOperation);
             tempClasses = createTempClasses(dimCount, tableData, factIndex);

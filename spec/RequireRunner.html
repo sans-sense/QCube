@@ -18,11 +18,10 @@
      srcRequire = require.config({
          baseUrl: "./src/",
      });
-     srcRequire(['cubeMaker', 'queryEngine', 'qcube', 'dataSource'], function(cubeMaker, queryEngine, qcube, dataSource) {
-         window.CB = cubeMaker;
+     srcRequire(['treeMaker', 'queryEngine', 'qCube'], function(treeMaker, queryEngine, qCube) {
+         window.CB = treeMaker;
          window.QE = queryEngine;
-         window.QC = qcube;
-         window.DS = dataSource;
+         window.QC = qCube;
          jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
          jasmine.getEnv().execute();
      });

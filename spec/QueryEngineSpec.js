@@ -7,7 +7,7 @@ describe("QueryEngine", function() {
             ['S1', 'P2', 's', 12],
             ['S2', 'P1', 'f', 9]
         ];
-        this.qcTree = CB.createCube(this.tableData);
+        this.qcTree = CB.createTree(this.tableData);
     });
     
     it('for *,*,*  gives a sum of all table data i.e 27, root works', function(){

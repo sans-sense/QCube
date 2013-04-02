@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>QCube Demo</title>
-    <link rel="stylesheet" type="text/css" href="../../lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../lib/bootstrap.min.2.1.0.css">
    <style type="text/css">
       body {
         padding-top: 60px;
@@ -13,58 +13,11 @@
         padding: 9px 0;
       }
     </style>
-   <script src="../../lib/jquery.min.js"></script>
-   <script src="../../lib/underscore-min.js"></script>
-    <script src="../../lib/bootstrap.min.js"></script>    
-   <script>
-    var rootUrl = '/find?payload=';
-    QC = {};
-    $(function(){
-        var originalCompute = PivotTableModel.prototype.compute;
-        var data;
-        var dimValues = {};
-        var de = demoExports;
-        de['measure'] = 'Rating';
-    
-        (function () {
-            this.compute = function() {
-                var url = rootUrl + escape(JSON.stringify({method:'getAll', filter:this.dimensions}));
-                $.ajax({url:url, async:false, success: function(result){data = result}});
-                originalCompute.call(this);
-            }
-        }).call(PivotTableModel.prototype);
-    
-        demoExports.tree = {
-            values:function(dimension) {
-                var url = rootUrl + escape(JSON.stringify({method:'values', filter:dimension}));
-                var result = dimValues[dimension];
-                if (!result) {
-                    $.ajax({url:url, async:false, success: function(text){result = text}});
-                    dimValues[dimension] = result;
-                }
-                return result;
-            },
-            findAll:function(criteria) {
-                var key = _.map(criteria, function(value){return value}).toString();
-                var result = {};
-                result[de['measure']] = data[key]
-                return [result];
-            }
-        };
-    
-        function getMeausreDetails(criteria) {
-            var url = '/find?payload=' + escape(JSON.stringify({method:'get', filter:criteria}));
-            $.ajax({url:url, async:true, cache:false, success: function(results){displayDetails(results);}});
-        };
-    
-        function displayDetails(results) {
-            
-        }
-    });
-   </script>
-   <script src="pivot.js"></script>
-   <script src="demo.ui.js"></script>
-   <script src="demo.js"></script>
+   <script src="../lib/jquery-1.9.1.js"></script>
+   <script src="../lib/underscore-min.js"></script>
+    <script src="../lib/bootstrap.min.2.1.0.js"></script>    
+   <script src="../common/pivot.js"></script>
+   <script src="../common/remote_cube.js"></script>
 
   </head>
   <body>

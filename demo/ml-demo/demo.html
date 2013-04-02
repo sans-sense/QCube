@@ -20,14 +20,10 @@
       }
 
     </style>
+   <!-- jquery does not play nice with require, need alternate version of require and dont want to make require ui aware-->
    <script src="../lib/jquery-1.9.1.js"></script>
-   <script src="../lib/handlebars-1.0.0-rc.3.js"></script>
-   <script src="../lib/d3-3.0.8.js"></script>
-   <script src="../lib/underscore-min.js"></script>
    <script src="../../lib/require.js"></script>
    <script src="./demo.js"> </script>
-   <script src="../common/model.js"></script>
-   <script src="../lib/nv.d3.js"></script>
 
     <script id="array-to-table-template" type="text/x-handlebars-template">
      <table class='table table-bordered table-condensed table-striped' >
@@ -71,18 +67,21 @@
       </div>
     </div>
 
-<h1>Quotient cube for 1k records of movie lens Data </h1>
+<h1>Cube for 1k records of movie lens Data </h1>
 <div class="container-fluid">
   <ul class="nav nav-tabs" id="myTab">
-    <li class="active"><a href="#home">Home</a></li>
+    <li class="active"><a href="#pivot">Pivot</a></li>
+    <li ><a href="#graphs">Graphs</a></li>
     <li><a href="#tableData">Tabular Data</a></li>
     <li><a href="#actualData">ActualData</a></li>
   </ul>
   
   <div class="tab-content">
+    <div class="tab-pane" id="pivot">
+    </div>
     <div class="tab-pane" id="tableData">
     </div>
-    <div class="tab-pane active" id="home">
+    <div class="tab-pane active" id="graphs">
       <div id="plotContent" class="row-fluid content">
         <p>Ratings over time</p>
        <div id="chart" >

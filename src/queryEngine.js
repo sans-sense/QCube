@@ -19,7 +19,11 @@ define(function(require) {
         };
 
         this.findAllDimensionValues = function(qcTree, dimensionIndex) {
-            return qcTree.dimensionStats[dimensionIndex];
+            if (dimensionIndex !== undefined && dimensionIndex !== null) {
+                return qcTree.dimensionStats[dimensionIndex];
+            } else {
+                return qcTree.dimensionStats;
+            }
         };
 
         /**

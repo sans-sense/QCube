@@ -14,8 +14,9 @@ describe("Cube", function() {
     });
     
     it("creates a cube spec from the passed dimension and measure names", function() {
-        var cube = QC.createCube(this.cubeSpecOptions, []);
+        var cube = QC.createCube(this.cubeSpecOptions, this.tableData);
         var cubeSpec = cube.getSpec();
+        console.log(cubeSpec);
         expect(cubeSpec.dimensionNames).toEqual(this.dimensionNames);
         expect(cubeSpec.measureNames).toEqual(this.measureNames);
         expect(cubeSpec.measureName).toEqual(this.measureNames[0]);

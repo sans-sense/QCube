@@ -1,14 +1,35 @@
 var srcRequire = require.config({
     baseUrl: "../../src/",
+    shim: {
+        "handlebars": {
+            exports: 'Handlebars'
+        },
+        'd3' : {
+            exports :'d3'
+        },
+        'underscore': {
+            exports : '_'
+        },
+        'nv.d3' : {
+            exports: 'nv'
+        }
+    },
+    paths: {
+        "handlebars" : '../demo/lib/handlebars-1.0.0-rc.3',
+        "d3" : '../demo/lib/d3-3.0.8.min',
+        'underscore': '../demo/lib/underscore-min',
+        'nv.d3': '../demo/lib/nv.d3',
+        'model' : '../demo/common/model'
+    }
 });
 
-window.onload = function() {
-    var domainModels, domainInstances, tableData, qcTree, cubeSpec, ratingData;
 
-    srcRequire(['cubeMaker', 'queryEngine'], function(cubeMaker, queryEngine) {
+window.onload = function() {
+    var domainModels, domainInstances, tableData, cube, cubeSpec, ratingData;
+    srcRequire(['qCube', 'model', 'handlebars', 'd3', 'underscore', 'nv.d3'], function(qCube, model, Handlebars, d3, und, nv) {
         cubeSpec = {
-            dimensions: [ 'Gender', 'Period', 'Age', 'Occupation'],
-            measure: ['Rating'],
+            dimensionNames: [ 'Gender', 'Period', 'Age', 'Occupation'],
+            measureNames: ['Rating'],
             aggregation: {
                 start: 0,
                 iterativeOperation: function(value, total) {
@@ -23,10 +44,124 @@ window.onload = function() {
         domainModels = createDomainModels();
         domainInstances = createDomainInstances(domainModels);
         tableData = flattenData(domainInstances);
-        qcTree = cubeMaker.createCube(tableData, cubeSpec.aggregation);
-        ratingData = createRatingData(queryEngine, qcTree);
+        cube = qCube.createCube(cubeSpec, tableData);
+        ratingData = createRatingData(cube);
         createRatingPlot(ratingData, '#chart');
         addUIActionListeners();
+
+        function createRatingPlot(data, selectorId) {
+            var plotData = [
+                {
+                    values: data.female,
+                    key: 'Female',
+                    color: 'orange'
+                },
+                {
+                    values: data.male,
+                    key: 'Male',
+                    color: '#2ca02c'
+                }
+            ];
+            nv.addGraph(function() {
+                var chart = nv.models.lineChart();
+                chart.xAxis
+                    .axisLabel('Year');
+                chart.yAxis
+                    .axisLabel('Rating')
+                    .tickFormat(d3.format('.02f'));
+                d3.select('#chart svg')
+                    .datum(plotData)
+                    .call(chart);
+                nv.utils.windowResize(chart.update);
+                return chart;
+            });
+        }
+
+        function createRatingData(qCube) {
+            var values = qCube.find([cube.findAllDimensionValues(0),cube.findAllDimensionValues(1),'*','*']);
+            var periodGenderRegex = /([M,F]),(\d{4}),*,*/;
+            var maleRatings, femaleRatings;
+            maleRatings = [];
+            femaleRatings = [];
+            values.forEach(function(result){
+                var key, dimCombination, value, dimSplits;
+                for (var key in result) {
+                    dimCombination = key;
+                    value = result[key]
+                }
+                
+                dimSplits = periodGenderRegex.exec(dimCombination);
+                if (dimSplits[1] === 'F') {
+                    femaleRatings.push( { x:dimSplits[2], y: value });
+                } else {
+                    maleRatings.push( { x:dimSplits[2], y: value });
+                }
+            });
+            return {
+                male:maleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
+                female:femaleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
+            }
+        }
+
+
+        function createDomainModels() {
+            var domainModels = {};
+            model.createDomainModel(domainModels, User,  ['UserID','Gender','Age','Occupation','Zip-code'], /(\d+)::(.+)::(\d+)::(\d+)::(\d+)/);
+            model.createDomainModel(domainModels, Movie,  ['MovieID','Title','Genres'], /(\d+)::(.+)::(\S+)/);
+            model.createDomainModel(domainModels, Rating, ['UserID','MovieID','Rating','Timestamp'], /(\d+)::(\d+)::(\d+)::(\d+)/);
+            return domainModels;
+        }
+
+        function createDomainInstances(domainModels) {
+            var domainInstances = {};
+            $('div.data textarea').each(function() {
+                var textAreaId, modelType, values, currentDomainInstance;
+                modelType =extractModelType( this.id);
+                domainInstances[modelType] = [];
+                values = this.value.split('\n');
+                _.each(values, function(value, index){
+                    if (value.trim().length > 0) {
+                        currentDomainInstance = domainModels[modelType].create(value.trim());
+                        if (currentDomainInstance.id) {
+                            domainInstances[modelType][currentDomainInstance.id] = currentDomainInstance
+                        } else {
+                            domainInstances[modelType].push(currentDomainInstance);
+                        }
+                    }
+                });
+            });
+            return domainInstances;
+        }
+
+        function flattenData(domainInstances) {
+            var yearRegex = /.*\((\d{4})\)/;
+            var tableData = [];
+            function getPeriod(yearString) {
+                var year = parseInt(yearRegex.exec(yearString)[1]);
+                return year;
+            }
+            var ratings = domainInstances['Rating'], users = domainInstances['User'], movies = domainInstances['Movie'];
+            und.each(ratings, function(rating) {
+                var user = users[rating.UserID], movie = movies[rating.MovieID];
+                if (user && movie) {
+                    tableData.push([user.Gender || 'uk', getPeriod(movie.Title) || 'uk',  user.Age || '0', user.Occupation || '0', rating.Rating]); 
+                } else {
+                    console.log("could not find detail for "+rating);
+                }
+            });
+            return tableData;
+        }
+
+        function extractModelType(elementId) {
+            var modelType;
+            modelType = elementId.substring(('txt_area_').length);
+            modelType = modelType[0].toUpperCase() +  modelType.substring(1);
+            return modelType;
+        }
+
+        function User() {this.pk = 'UserID'; };
+        function Movie() { this.pk = 'MovieID';};
+        function Rating() {};
     });
 
     function addUIActionListeners() {
@@ -47,117 +182,5 @@ window.onload = function() {
         });
     }
 
-    function createRatingPlot(data, selectorId) {
-        var plotData = [
-            {
-                values: data.female,
-                key: 'Female',
-                color: 'orange'
-            },
-            {
-                values: data.male,
-                key: 'Male',
-                color: '#2ca02c'
-            }
-        ];
-        nv.addGraph(function() {
-            var chart = nv.models.lineChart();
-            chart.xAxis
-                .axisLabel('Year');
-            chart.yAxis
-                .axisLabel('Rating')
-                .tickFormat(d3.format('.02f'));
-            d3.select('#chart svg')
-                .datum(plotData)
-                .call(chart);
-            nv.utils.windowResize(chart.update);
-            return chart;
-        });
-    }
 
-    function createRatingData(queryEngine, qcTree) {
-        var values = queryEngine.find(qcTree, [qcTree.dimensionStats[0],qcTree.dimensionStats[1],'*','*']);
-        var periodGenderRegex = /([M,F]),(\d{4}),*,*/;
-        var maleRatings, femaleRatings;
-        maleRatings = [];
-        femaleRatings = [];
-        values.forEach(function(result){
-            var key, dimCombination, value, dimSplits;
-            for (var key in result) {
-                dimCombination = key;
-                value = result[key]
-            }
-            
-            dimSplits = periodGenderRegex.exec(dimCombination);
-            if (dimSplits[1] === 'F') {
-                femaleRatings.push( { x:dimSplits[2], y: value });
-            } else {
-                maleRatings.push( { x:dimSplits[2], y: value });
-            }
-        });
-        return {
-            male:maleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
-            female:femaleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
-        }
-    }
-
-
-    function createDomainModels() {
-        var domainModels = {};
-        createDomainModel(domainModels, User,  ['UserID','Gender','Age','Occupation','Zip-code'], /(\d+)::(.+)::(\d+)::(\d+)::(\d+)/);
-        createDomainModel(domainModels, Movie,  ['MovieID','Title','Genres'], /(\d+)::(.+)::(\S+)/);
-        createDomainModel(domainModels, Rating, ['UserID','MovieID','Rating','Timestamp'], /(\d+)::(\d+)::(\d+)::(\d+)/);
-        return domainModels;
-    }
-
-    function createDomainInstances(domainModels) {
-        var domainInstances = {};
-        $('div.data textarea').each(function() {
-            var textAreaId, modelType, values, currentDomainInstance;
-            modelType =extractModelType( this.id);
-            domainInstances[modelType] = [];
-            values = this.value.split('\n');
-            _.each(values, function(value, index){
-                if (value.trim().length > 0) {
-                    currentDomainInstance = domainModels[modelType].create(value.trim());
-                    if (currentDomainInstance.id) {
-                        domainInstances[modelType][currentDomainInstance.id] = currentDomainInstance
-                    } else {
-                        domainInstances[modelType].push(currentDomainInstance);
-                    }
-                }
-            });
-        });
-        return domainInstances;
-    }
-
-    function flattenData(domainInstances) {
-        var yearRegex = /.*\((\d{4})\)/;
-        var tableData = [];
-        function getPeriod(yearString) {
-            var year = parseInt(yearRegex.exec(yearString)[1]);
-            return year;
-        }
-        var ratings = domainInstances['Rating'], users = domainInstances['User'], movies = domainInstances['Movie'];
-        und.each(ratings, function(rating) {
-            var user = users[rating.UserID], movie = movies[rating.MovieID];
-            if (user && movie) {
-                tableData.push([user.Gender || 'uk', getPeriod(movie.Title) || 'uk',  user.Age || '0', user.Occupation || '0', rating.Rating]); 
-            } else {
-                console.log("could not find detail for "+rating);
-            }
-        });
-        return tableData;
-    }
-
-    function extractModelType(elementId) {
-        var modelType;
-        modelType = elementId.substring(('txt_area_').length);
-        modelType = modelType[0].toUpperCase() +  modelType.substring(1);
-        return modelType;
-    }
-
-    function User() {this.pk = 'UserID'; };
-    function Movie() { this.pk = 'MovieID';};
-    function Rating() {};
 }
