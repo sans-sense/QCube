@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>QCube Demo</title>
-    <link rel="stylesheet" type="text/css" href="../../lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../lib/bootstrap.min.2.1.0.css">
    <style type="text/css">
       body {
         padding-top: 60px;
@@ -13,121 +13,72 @@
         padding: 9px 0;
       }
     </style>
-   <script src="../../lib/jquery.min.js"></script>
-    <script src="../../lib/bootstrap.min.js"></script>    
-   <script>
-     var rootUrl = '/find?payload=';
-     QC = {};
+   <script src="../lib/jquery-1.9.1.js"></script>
+   <script src="../lib/underscore-min.js"></script>
+    <script src="../lib/bootstrap.min.2.1.0.js"></script>
+   <script src="../common/pivot.js"></script>
+   <script src="../common/remote_cube.js"></script>
+   <script src="../common/demo.ui.js"></script>
+
+   <script> 
+     // hack  remove as soon as dev is done
+     var demoExports = {};
+
      $(function(){
-     var originalCompute = PivotTableModel.prototype.compute;
-     var data;
-     var dimValues = {};
-     var de = demoExports;
-     de['measure'] = 'Commit';
-
-     (function () {
-     this.compute = function() {
-     var url = rootUrl + escape(JSON.stringify({method:'getAll', filter:this.dimensions}));
-     $.ajax({url:url, async:false, success: function(result){data = result}});
-     originalCompute.call(this);
-     }
-     }).call(PivotTableModel.prototype);
-
-     demoExports.tree = {
-     values:function(dimension) {
-     var url = rootUrl + escape(JSON.stringify({method:'values', filter:dimension}));
-     var result = dimValues[dimension];
-     if (!result) {
-        $.ajax({url:url, async:false, success: function(text){result = text}});
-        dimValues[dimension] = result;
-     }
-     return result;
-     },
-     findAll:function(criteria) {
-     var key = _.map(criteria, function(value){return value}).toString();
-     var result = {};
-     result[de['measure']] = data[key]
-     return [result];
-     }
-     };
-
-     function getMeausreDetails(criteria) {
-     var url = '/find?payload=' + escape(JSON.stringify({method:'get', filter:criteria}));
-     $.ajax({url:url, async:true, cache:false, success: function(results){displayDetails(results);}});
-     };
-
-     function displayDetails(results) {
-     
-     }
+         // var demoExports = {};
+         setupDemo(demoExports);
+         var remoteCube = new RemoteCube();
+         demoExports['remoteCube'] = remoteCube;
+         remoteCube.enhancePivotTableModel(PivotTableModel.prototype);
+         demoExports.setupPage(remoteCube);
      });
+
+     
    </script>
-   <script src="../../lib/underscore-min.js"></script>
-   <script src="pivot.js"></script>
-   <script src="demo.ui.js"></script>
-   <script src="demo.js"></script>
 
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
           <a class="brand" href="#">QCube Demo</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="https://github.com/imaginea/QCube">About</a></li>
               <li><a href="http://www.imaginea.com">Contact</a></li>
             </ul>
-          </div><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
 
 
-<div class="container-fluid">
+    <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span3">
+        <div class="span3 navigation">
           <div class="well sidebar-nav facts">
-            <ul class="nav nav-list">
+            <ul class="nav nav-list facts">
               <li class="nav-header">Fact</li>
-              <li ><a href="#Commit">Commit</a></li>
             </ul>
           </div>
           <div class="well sidebar-nav dimensions">
-            <ul class="nav nav-list">
+            <ul class="nav nav-list dimensions">
               <li class="nav-header">Dimension</li>
-              <li><a href="#user">User</a>
-                <ul>
-                  <li><a href="#Author">Author</a></li>
-                  <li><a href="#Team">Team</a></li>
-                  <li><a href="#Complexity">Complexity</a></li>
-                </ul>
-              </li>
-              <li><a href="#Time">Time</a>
-                <ul>
-                  <li><a href="#Month">Month</a></li>
-                  <li><a href="#Year">Year</a></li>
-                  <li><a href="#Day">Day</a></li>
-              </li>
               </ul>
           </div><!--/.well -->
         </div><!--/span-->
 
-        <div class="span9">
+        <div class="span9 content">
           <p class="lead">Git Commit Demo</p>
           <div class="report well">
             <p><strong>Summary : </strong><span id="cube_summary"></span></p>
             
-            <p class="pull-right"><small>Drag the dimensions to view averages at those levels</small></p>
+            <p class="pull-right"><small>Drag the dimensions to view aggregates at those levels</small></p>
 
             <table id="report-table" class="table table-bordered" >
               <thead>
                 <tr>
-                  <th>Commit</th>
+                  <th>Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,17 +88,17 @@
             <button id="toggle-data" class="btn btn-secondary btn-mini">Show Data</button>
             <button id="compute-tree" class="btn btn-secondary btn-mini">Recompute Tree</button>
           </div><!--/row-->
-          </div><!--/row-->
+        </div><!--/row-->
 
-        </div><!--/span-->
-      </div><!--/row-->
+      </div><!--/span-->
+    </div><!--/row-->
 
-      <hr>
+    <hr>
 
-      <footer>
-        <p>&copy; Imaginea 2012</p>
-      </footer>
+    <footer>
+      <p>&copy; Imaginea 2012</p>
+    </footer>
 
-    </div><!--/.fluid-container-->
-  </body>
+</div><!--/.fluid-container-->
+</body>
 </html>

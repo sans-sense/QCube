@@ -15,7 +15,7 @@ define(function(require) {
                     return doRangeQuery(qcTree, query);
                 }
             }
-            return doPointQuery(qcTree, query);
+            return [createResultWrapper(query, doPointQuery(qcTree, query))];
         };
 
         this.findAllDimensionValues = function(qcTree, dimensionIndex) {
@@ -158,13 +158,11 @@ define(function(require) {
 
 
         function recursiveRangeQuery(qcTree, criteria, newRoot, index, results, query) {
-            var  currRoot, i, nodeWithValue, result;
+            var  currRoot, i, nodeWithValue;
             if (!criteria) {
                 if (newRoot) {
                     nodeWithValue = getNodeWithValue(newRoot);
-                    result = {};
-                    result[nodeWithValue.upperBound] = nodeWithValue.value;
-                    results.push(result);
+                    results.push(createResultWrapper(nodeWithValue.upperBound, nodeWithValue.value));
                 }
             }
 
@@ -210,6 +208,14 @@ define(function(require) {
 
         function isArray(value) {
             return (value && Object.prototype.toString.call(value) == '[object Array]');
+        }
+
+        function createResultWrapper(upperBound, value) {
+            var result;
+            result = {};
+            result.key = upperBound;
+            result.value = value;
+            return result;
         }
 
     }).call(QE);

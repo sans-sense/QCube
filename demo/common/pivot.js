@@ -1,9 +1,9 @@
 // PivotTableModel is a model for pivot table which can compute using the qc tree via compute method
 // dimensions is string array and measure is single string value
 // contract for qcTree, must have methods "[] values(dimension)" ""
-function PivotTableModel(qcTree) {
-    this.dimensions = qcTree.cubeSpec.dimensions;
-    this.measure = qcTree.cubeSpec.measure[0];
+function PivotTableModel(dimensions, measure, qcTree) {
+    this.dimensions = dimensions;
+    this.measure = measure;
     this.qcTree = qcTree;
 }
 
@@ -30,8 +30,8 @@ function PivotTableModel(qcTree) {
         currentColumnIndex = 0;
         prevColumnModel = null;
 
-        if (qcTree.startCompute) {
-            qcTree.startCompute(this.dimensions);
+        if (this.qcTree.startCompute) {
+            this.qcTree.startCompute(this.dimensions);
         }
 
         // create column model for each dimension

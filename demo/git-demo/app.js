@@ -4,41 +4,50 @@
     var ee = new EventEmitter();
 
     var pathStrToCommon = '../common/';
-    var pathStrToLib = './../../lib/';
+    var pathStrToLib = './../lib/';
 
     var utils = require(pathStrToCommon + 'utils.js');
-    var demo = require(pathStrToCommon + 'demo.js');
     var und  = require(pathStrToLib + 'underscore-min.js');
 
     var cube_server = require(pathStrToCommon + 'cube_server.js');
 
-    var projectName = 'project';
+    var projectName = 'wavemaker';
     var dimensions = ['Author', 'Team', 'Month', 'Year', 'Day', 'Complexity'];
     var measure = ['Commit'];
+
+    var cubeSpec = {
+        dimensions: dimensions,
+        measure: measure,
+        aggregation: {
+            start: 0,
+            iterativeOperation: function(value, total) {
+                return total + parseInt(value, 10);
+            },
+            summaryOperation: function(total, partition) {
+                return partition.length;
+            }
+        }
+    };
 
     console.log(new Date() + ' started app.js');
 
     //create domain model
     function Commit(){};
-    demo.createDomainModel(Commit, dimensions.concat(measure));
+    utils.createDomainModel(Commit, dimensions.concat(measure));
     readProjectLog();
 
     ee.on('instances-created', function(commits) {
         var tableData = flattenData(commits);
         console.log(new Date() + ' all-instances-created');
-        cube_server.createCube(dimensions, measure, tableData, demo);
+        cube_server.createCubeServer({tableData: tableData, cubeSpec:cubeSpec}, __dirname, {startPath: '/../git-demo/n-demo.htm'});
         ee.emit('cube-computed', tableData);
     })
 
     ee.on('cube-computed', function(args) {
         console.log(new Date() + ' cube-computed');
-        cube_server.createServer( __dirname);
         ee.emit('server-created', args)
     });
 
-    ee.on('server-created', function(tableData) {
-        cube_server.createIndexes(tableData);
-    });
 
     function flattenData(commits) {
         var tableData = [];

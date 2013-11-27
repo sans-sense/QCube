@@ -15,3 +15,27 @@ The git log cube uses commit counts as measures with 'Author', 'Team', 'Month', 
 
 Demo of 100k/1k data of movie lens, further details in README.md in ml-demo folder.
    
+### Quick Test
+getCubeSpec -> $.getJSON( "find?payload=cubeSpec", function( data ) {
+    console.log(data);
+})
+
+find -> 
+curl 'http://localhost:9090/find?payload=%7B%22method%22%3A%22find%22%2C%22args%22%3A%5B%22*%22%2C%22*%22%2C%22*%22%5D%7D' -H 'Host: localhost:9090' -H 'Accept: application/json, text/javascript, */*; q=0.01' 
+var urlAppend = escape(JSON.stringify({method:"find", 'args':['*','*','*']}));
+$.getJSON( "find?payload="+urlAppend, function( data ) {
+    console.log(data);
+})
+
+var urlAppend = escape(JSON.stringify({method:"findAllDimensionValues", 'args':2}));
+$.getJSON( "find?payload="+urlAppend, function( data ) {
+    console.log(data);
+})
+
+
+var findArgs = ['ap_nat@yahoo.com'];
+_.each(_.range(5), function(){findArgs.push('*');})
+var urlAppend = escape(JSON.stringify({method:"find", 'args':findArgs}));
+$.getJSON( "find?payload="+urlAppend, function( data ) {
+    console.log(data);
+})

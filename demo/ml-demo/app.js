@@ -23,7 +23,7 @@
     var cubeServer = require('../common/cube_server.js');
 
     und.each(domainInstances, function(value, dimension) {
-        var readStream = fs.ReadStream("/data/host/projects/imaginea-git/QCubeOld/demo/ml-demo/"+dimension.toLowerCase()+"s.dat");
+        var readStream = fs.ReadStream("/data/work/ss-git/js/QCube/data/ml-1m/"+dimension.toLowerCase()+"s.dat");
         var key = dimension;
 
         readStream.setEncoding('ascii');

@@ -3,7 +3,7 @@ Demo
 
 ## Simple Movie Rating Demo
 ### Intro
-A simple demo of movie ratings based on 1k records from the 1M data set from http://www.grouplens.org/system/files/ml-1m.zip. Open demo.html in your browser, no server needed. 
+A simple demo of movie ratings based on 1k records from the 1M data set from http://files.grouplens.org/papers/ml-1m.zip. Open demo.html in your browser, no server needed. 
 
 app.js is a node app which can do better crunching upto 100k within 1 min, once the cube is created, it opens a http server which can serve the cube (run n-demo.htm from http://localhost:8080/n-demo.htm). The current implementation unfortunately suffers from non-linear time expansion, so for 1M it takes for ever. All numbers are based on my ubuntu 12.04 dual core 2.2 ghz T660 intel latop with 3gb ram.
 

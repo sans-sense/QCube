@@ -16,7 +16,7 @@
     var ee = new EventEmitter();
     var cube_server = {};
     var qcTree = null;
-    var portNumber = 8080;
+    var portNumber = 9090;
     var cubeSpec = null;
     var debugMode = true;
 
@@ -67,6 +67,8 @@
                 } else if (isJSONRequest(requestUrl)) {
                     handleJSONRequest(requestUrl, response);
                 } else {
+                    response.writeHead(500);
+                    response.end();
                     console.log('could not find anything for '+ filePath);
                 }
             });
@@ -93,6 +95,9 @@
                 }
                 if (queryEngine[searchCriteria.method]) {
                     sendJSONResponse(queryEngine[searchCriteria.method].apply(this, methodArgs), response);
+                } else {
+                    response.writeHead(500);
+                    response.end();
                 }
             }
         }catch(e) {
