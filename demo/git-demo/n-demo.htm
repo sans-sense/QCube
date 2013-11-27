@@ -21,11 +21,9 @@
    <script src="../common/demo.ui.js"></script>
 
    <script> 
-     // hack  remove as soon as dev is done
-     var demoExports = {};
 
      $(function(){
-         // var demoExports = {};
+         var demoExports = {};
          setupDemo(demoExports);
          var remoteCube = new RemoteCube();
          demoExports['remoteCube'] = remoteCube;
@@ -85,8 +83,6 @@
               </tbody>
             </table>
             <br/>
-            <button id="toggle-data" class="btn btn-secondary btn-mini">Show Data</button>
-            <button id="compute-tree" class="btn btn-secondary btn-mini">Recompute Tree</button>
           </div><!--/row-->
         </div><!--/row-->
 

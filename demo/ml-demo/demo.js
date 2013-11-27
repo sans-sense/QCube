@@ -79,23 +79,22 @@ window.onload = function() {
 
         function createRatingData(qCube) {
             var values = qCube.find([cube.findAllDimensionValues(0),cube.findAllDimensionValues(1),'*','*']);
-            var periodGenderRegex = /([M,F]),(\d{4}),*,*/;
-            var maleRatings, femaleRatings;
+            var maleRatings, femaleRatings, currentGenderRatings;
             maleRatings = [];
             femaleRatings = [];
+            currentGenderRatings;
             values.forEach(function(result){
+                var value, queryKey;
+                queryKey = result.key;
+                value = result.value
                 var key, dimCombination, value, dimSplits;
                 for (var key in result) {
                     dimCombination = key;
                     value = result[key]
                 }
                 
-                dimSplits = periodGenderRegex.exec(dimCombination);
-                if (dimSplits[1] === 'F') {
-                    femaleRatings.push( { x:dimSplits[2], y: value });
-                } else {
-                    maleRatings.push( { x:dimSplits[2], y: value });
-                }
+                currentGenderRatings = (queryKey[0] === 'F')? femaleRatings : maleRatings;
+                currentGenderRatings.push( { x:queryKey[1], y: value });
             });
             return {
                 male:maleRatings.sort(function(d1, d2) {return (d1.x < d2.x)? -1:1}),
@@ -176,7 +175,7 @@ window.onload = function() {
             if (hash === 'tableData') {
                 if ($('#tableData table').size() < 1) {
                     template = Handlebars.compile($("#array-to-table-template").html());
-                    $('#tableData').append(template({headers:[].concat(cubeSpec.dimensions).concat(cubeSpec.measure), rows:tableData}));
+                    $('#tableData').append(template({headers:[].concat(cubeSpec.dimensionNames).concat(cubeSpec.measureNames), rows:tableData}));
                 }
             }
         });

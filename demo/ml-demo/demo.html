@@ -51,11 +51,6 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
           <a class="brand" href="#">QCube Demo</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
@@ -70,14 +65,48 @@
 <h1>Cube for 1k records of movie lens Data </h1>
 <div class="container-fluid">
   <ul class="nav nav-tabs" id="myTab">
-    <li class="active"><a href="#pivot">Pivot</a></li>
-    <li ><a href="#graphs">Graphs</a></li>
+    <li><a href="#pivot">Pivot</a></li>
+    <li class="active"><a href="#graphs">Graphs</a></li>
     <li><a href="#tableData">Tabular Data</a></li>
     <li><a href="#actualData">ActualData</a></li>
   </ul>
   
   <div class="tab-content">
     <div class="tab-pane" id="pivot">
+      <div class="row-fluid">
+        <div class="span3 navigation">
+          <div class="well sidebar-nav facts">
+            <ul class="nav nav-list facts">
+              <li class="nav-header">Fact</li>
+            </ul>
+          </div>
+          <div class="well sidebar-nav dimensions">
+            <ul class="nav nav-list dimensions">
+              <li class="nav-header">Dimension</li>
+              </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+
+        <div class="span9 content">
+          <p class="lead">Movie Rating Demo</p>
+          <div class="report well">
+            <p><strong>Summary : </strong><span id="cube_summary"></span></p>
+            
+            <p class="pull-right"><small>Drag the dimensions to view averages at those levels</small></p>
+
+            <table id="report-table" class="table table-bordered" >
+              <thead>
+                <tr>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            <br/>
+          </div><!--/row-->
+        </div><!--/row-->
+      </div><!--/row-->
     </div>
     <div class="tab-pane" id="tableData">
     </div>
@@ -90,8 +119,8 @@
       </div>
     </div>
       <div class="tab-pane" id="actualData">
-          <div class="data well" >
-            <div class="span4">
+          <div class="data" >
+            <div class="span3 well">
               <p>Movie Data</p>
               <textarea id="txt_area_movie" class="dimension">
 1::Toy Story (1995)::Animation|Children's|Comedy
@@ -3980,7 +4009,7 @@
               </textarea>
             </div>
             
-            <div class="span4">
+            <div class="span3 well">
               <p>User Data</p>
               <textarea id="txt_area_user" class="dimension">
 1::F::1::10::48067
@@ -10026,7 +10055,7 @@
               </textarea>
               </div>
 
-            <div class="span4">
+            <div class="span3 well">
               <p>Ratings</p>
               <textarea id="txt_area_rating" class="fact">
 1::1193::5::978300760

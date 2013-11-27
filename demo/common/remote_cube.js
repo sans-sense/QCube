@@ -124,6 +124,14 @@ function RemoteCube() {
         _.each(cubeSpec.dimensions, function(d, index){
             url = rootUrl + createSearchSpec('findAllDimensionValues', index);
             $.ajax({url:url, async:true, success: function(result){
+                var compareFunction;
+                if (result[0] == parseInt(result[0])) {
+                    compareFunction = function(v){return parseInt(v)}
+                } else {
+                    compareFunction = function(v){return v}
+                }
+                result = _.sortBy(result, compareFunction);
+                console.log("compared for "+index + " "+result );
                 dimValues.push(result);
             }});
         });

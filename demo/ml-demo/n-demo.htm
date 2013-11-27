@@ -15,61 +15,57 @@
     </style>
    <script src="../lib/jquery-1.9.1.js"></script>
    <script src="../lib/underscore-min.js"></script>
-    <script src="../lib/bootstrap.min.2.1.0.js"></script>    
+   <script src="../lib/bootstrap.min.2.1.0.js"></script>
    <script src="../common/pivot.js"></script>
    <script src="../common/remote_cube.js"></script>
+   <script src="../common/demo.ui.js"></script>
+   <script> 
 
+     $(function(){
+         var demoExports = {};
+         setupDemo(demoExports);
+         var remoteCube = new RemoteCube();
+         demoExports['remoteCube'] = remoteCube;
+         remoteCube.enhancePivotTableModel(PivotTableModel.prototype);
+         demoExports.setupPage(remoteCube);
+     });
+
+     
+   </script>
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
           <a class="brand" href="#">QCube Demo</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="https://github.com/imaginea/QCube">About</a></li>
               <li><a href="http://www.imaginea.com">Contact</a></li>
             </ul>
-          </div><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
 
 
-<div class="container-fluid">
+    <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span3">
+        <div class="span3 navigation">
           <div class="well sidebar-nav facts">
-            <ul class="nav nav-list">
+            <ul class="nav nav-list facts">
               <li class="nav-header">Fact</li>
-              <li ><a href="#movie">Ratings</a></li>
             </ul>
           </div>
           <div class="well sidebar-nav dimensions">
-            <ul class="nav nav-list">
+            <ul class="nav nav-list dimensions">
               <li class="nav-header">Dimension</li>
-              <li><a href="#user">User</a>
-                <ul>
-                  <li><a href="#Gender">Gender</a></li>
-                  <li><a href="#Age">Age</a></li>
-                  <li><a href="#Occupation">Occupation</a></li>
-                </ul>
-              </li>
-              <li><a href="#movie">Movie</a>
-                <ul>
-                  <li><a href="#Period">Period</a></li>
-              </li>
               </ul>
           </div><!--/.well -->
         </div><!--/span-->
 
-        <div class="span9">
-          <p class="lead">Movie Lens Demo - Demo of 100K records of the 1M records for Movie Lens ratings</p>
+        <div class="span9 content">
+          <p class="lead">Movie Lens Demo</p>
           <div class="report well">
             <p><strong>Summary : </strong><span id="cube_summary"></span></p>
             
@@ -85,20 +81,17 @@
               </tbody>
             </table>
             <br/>
-            <button id="toggle-data" class="btn btn-secondary btn-mini">Show Data</button>
-            <button id="compute-tree" class="btn btn-secondary btn-mini">Recompute Tree</button>
           </div><!--/row-->
-          </div><!--/row-->
+        </div><!--/row-->
+      </div><!--/span-->
+    </div><!--/row-->
 
-        </div><!--/span-->
-      </div><!--/row-->
+    <hr>
 
-      <hr>
+    <footer>
+      <p>&copy; Imaginea 2012</p>
+    </footer>
 
-      <footer>
-        <p>&copy; Imaginea 2012</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-  </body>
+</div><!--/.fluid-container-->
+</body>
 </html>
