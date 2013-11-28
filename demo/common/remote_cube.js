@@ -79,7 +79,7 @@ function RemoteCube() {
         }).call(PivotTableModel.prototype);
     }
 
-    this.remoteTree = {
+    this.tree = {
         values:function(dimName) {
             return dimValues[dimNameVsIndexMap[dimName]];
         },
@@ -131,7 +131,6 @@ function RemoteCube() {
                     compareFunction = function(v){return v}
                 }
                 result = _.sortBy(result, compareFunction);
-                console.log("compared for "+index + " "+result );
                 dimValues.push(result);
             }});
         });

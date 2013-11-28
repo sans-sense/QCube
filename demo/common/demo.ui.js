@@ -95,7 +95,7 @@ function setupDemo(demoExports) {
     
     function addDimensionAndMeasureToPage(dimensions, measure) {
         _.each(measure, function(measure){
-            $('ul.facts li:last').after('<li ><a href="#[0]">[1]</a></li>'.format(measure, measure));
+            $('ul.facts li:last').after('<li >[0]</li>'.format(measure));
         });
 
 
@@ -107,9 +107,10 @@ function setupDemo(demoExports) {
     function setupPage(cube) {
         var cubeSpec, dimensions;
         cubeSpec = cube.cubeSpec;
-        dimensions = cubeSpec.dimensions;
-        measure = cubeSpec.measure;
-        tree = cube.remoteTree;
+        // AN hack get your cubespec right
+        dimensions = cubeSpec.dimensions || cubeSpec.dimensionNames;
+        measure = cubeSpec.measure || cubeSpec.measureNames;
+        tree = cube.tree;
         addDimensionAndMeasureToPage(dimensions, measure);
         addDragDrop(measure);
         drawModel();

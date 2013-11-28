@@ -19,7 +19,7 @@ var srcRequire = require.config({
 });
 
 window.onload = function() {
-    srcRequire(['cubeMaker', 'queryEngine', 'handlebars', 'd3', 'jquery'], function(cubeMaker, queryEngine, Handlebars, d3, $) {
+    srcRequire(['treeMaker', 'queryEngine', 'handlebars', 'd3', 'jquery'], function(treeMaker, queryEngine, Handlebars, d3, $) {
         var tempClasses, columnNames, cubeInternals, tableData, template;
         columnNames = ['id', 'ub', 'lb', 'dim', 'agg', 'pid'];
 
@@ -31,7 +31,7 @@ window.onload = function() {
 
         template = Handlebars.compile($("#array-to-table-template").html());
         cubeInternals = {};
-        cubeMaker.exportTo(cubeInternals);
+        treeMaker.exportTo(cubeInternals);
         cubeInternals.configure(tableData);
 
         tempClasses = cubeInternals.createTempClasses(tableData);

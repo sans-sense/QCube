@@ -12,6 +12,15 @@ var srcRequire = require.config({
         },
         'nv.d3' : {
             exports: 'nv'
+        },
+        'PivotTableModel' : {
+            exports: 'PivotTableModel'
+        },
+        'PivotRenderer' : {
+            exports: 'PivotRenderer'
+        },
+        'demoUI' : {
+            exports: 'setupDemo'
         }
     },
     paths: {
@@ -19,14 +28,28 @@ var srcRequire = require.config({
         "d3" : '../demo/lib/d3-3.0.8.min',
         'underscore': '../demo/lib/underscore-min',
         'nv.d3': '../demo/lib/nv.d3',
-        'model' : '../demo/common/model'
+        'model' : '../demo/common/model',
+        'PivotTableModel' : '../demo/common/pivotTableModel',
+        'PivotRenderer' : '../demo/common/pivotRenderer',
+        'demoUI' : '../demo/common/demo.ui'
     }
 });
 
 
 window.onload = function() {
     var domainModels, domainInstances, tableData, cube, cubeSpec, ratingData;
-    srcRequire(['qCube', 'model', 'handlebars', 'd3', 'underscore', 'nv.d3'], function(qCube, model, Handlebars, d3, und, nv) {
+    srcRequire(['qCube', 'model', 'handlebars', 'd3', 'underscore', 'nv.d3', 'PivotTableModel', 'PivotRenderer', 'demoUI'], function(qCube, model, Handlebars, d3, und, nv, PivotTableModel, PivotRenderer, demoUI) {
+        var dimNameVsIndexMap;
+
+        function constructNameVsIndexMap(cubeSpec) {
+            var dims, i;
+            dimNameVsIndexMap = [];
+            dims = cubeSpec.dimensionNames;
+            for (i = 0; i < dims.length; i++) {
+                dimNameVsIndexMap[dims[i]] = i;
+            }
+        }
+
         cubeSpec = {
             dimensionNames: [ 'Gender', 'Period', 'Age', 'Occupation'],
             measureNames: ['Rating'],
@@ -40,14 +63,45 @@ window.onload = function() {
                 }
             }
         };
-
         domainModels = createDomainModels();
         domainInstances = createDomainInstances(domainModels);
         tableData = flattenData(domainInstances);
         cube = qCube.createCube(cubeSpec, tableData);
+        cube.cubeSpec = cubeSpec;
+        constructNameVsIndexMap(cubeSpec);
+        cube.tree = {
+            values:function(dimName) {
+                return this.sortValues(cube.findAllDimensionValues(dimNameVsIndexMap[dimName]));
+            },
+            findAll:function(criteria) {
+                var i, query = this.createRootQuery();
+                for (i in criteria) {
+                    query[dimNameVsIndexMap[i]] = criteria[i];
+                }
+                return cube.find(query)[0].value;
+            },
+            createRootQuery:function(dimCount) {
+                return _.map(cubeSpec.dimensionNames, function(){return '*'});
+            },
+            sortValues: function(values) {
+                var compareFunction;
+                if (values[0] == parseInt(values[0])) {
+                    compareFunction = function(v){return parseInt(v)}
+                } else {
+                    compareFunction = function(v){return v}
+                }
+                values = _.sortBy(values, compareFunction);
+                return values;
+            }
+
+        };
+
         ratingData = createRatingData(cube);
         createRatingPlot(ratingData, '#chart');
         addUIActionListeners();
+        var demoExports = {};
+        demoUI(demoExports);
+        demoExports.setupPage(cube);
 
         function createRatingPlot(data, selectorId) {
             var plotData = [
@@ -180,6 +234,4 @@ window.onload = function() {
             }
         });
     }
-
-
 }
