@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>QCube Internals</title>
+    <title>QCube Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="./lib/bootstrap.min.2.1.0.css">
     <link rel="stylesheet" type="text/css" href="./demo.css">
@@ -35,12 +35,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">QCube Internals</a>
+          <span class="brand" >QCube Demo</span>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="https://github.com/imaginea/QCube">About</a></li>
@@ -53,8 +48,13 @@
 
 
     <div class="container-fluid">
-      <h1>QCube Internals</h1>
-      <p>A basic demo of sales data with intermediate steps used for computing a QC Tree. </p>
+      <h1>QCube Demo</h1>
+      <p>A basic demo of sales data with intermediate steps used for computing a QC Tree. <br/>
+        The tree represents aggregates at different dimensional levels, for example for total sales for Product P1 look at the [P1] node in the tree. <br/>
+        For the theory behind qctree refer the <a href="//www.cs.ubc.ca/labs/db/thesis/yzhao_thesis.pdf‎">detailed Paper by yzhao </a> <br/>
+        Feel free to change the data in sales data using firebug and click on recompute to see the new tree.
+        
+      </p>
       <div class="row-fluid content">
         <div class="span3">
           <p class="lead"><strong>Sales Data</strong></p>
@@ -79,6 +79,7 @@
               </tr>
             </tbody>
           </table>
+          <button class="btn btn-primary" id="recomputeBtn">Recompute</button>
         </div>
 
         <div class="span3">
