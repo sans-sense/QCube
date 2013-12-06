@@ -62,7 +62,7 @@
     }
 
     function readProjectLog() {
-        var readStream = fs.ReadStream(__dirname + "/"+projectName+".log");
+        var readStream = fs.ReadStream(__dirname + "/../../data/"+projectName+".log");
         var commits = [];
         var currCommit = null;
         var val;
