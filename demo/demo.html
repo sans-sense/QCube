@@ -56,7 +56,7 @@
         
       </p>
       <div class="row-fluid content">
-        <div class="span3">
+        <div class="span4">
           <p class="lead"><strong>Sales Data</strong></p>
           <table class="table table-bordered" id="salesData">
             <thead>
@@ -79,29 +79,28 @@
               </tr>
             </tbody>
           </table>
-          <button class="btn btn-primary" id="recomputeBtn">Recompute</button>
+          <button title="Add Record" id="addRecordBtn" class="btn btn-secondary"><span class="icon icon-plus"></button>
+         <button class="btn btn-primary" id="recomputeBtn">Recompute</button>
+         <br/>
+          Double click to edit, press enter for the new value, escape to retain the old one, use the "+" button to add a row, set value as zero for the row to be removed.
         </div>
 
-        <div class="span3">
+        <div class="span4">
+          <p class="lead"><strong>Actual Tree</strong></p>
+          <div id="qcTree">
+          </div>
+        </div>
+        <div class="span4">
           <p class="lead"><strong>Temp Classes</strong></p>
           <div id="tempClasses">
           </div>
         </div><!-- end of div for tempclasses -->
         
-        <div class="span3">
+        <div class="span4">
           <p class="lead"><strong> Sorted Temp Classes</strong></p>
           <div id="sortedTempClasses">
           </div>
         </div><!-- end of div for sorted tempclasses -->
-
-        <div class="span3">
-          <p class="lead"><strong>Actual Tree</strong></p>
-          <div id="qcTree">
-          </div>
-        </div>
-
-        </div><!-- Actual tree representation -->
-      </div>
     </div>
 </div><!--/.fluid-container-->
 </body>

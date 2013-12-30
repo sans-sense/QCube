@@ -54,3 +54,12 @@ path.nelink {
   stroke: steelblue;
   stroke-width: 1.5px;
 }
+
+input.chng {
+    width:21px;
+}
+
+
+#salesData > tbody > tr:hover {
+    background-color:darkgrey;
+}

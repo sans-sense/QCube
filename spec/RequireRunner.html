@@ -18,10 +18,11 @@
      srcRequire = require.config({
          baseUrl: "./src/",
      });
-     srcRequire(['treeMaker', 'queryEngine', 'qCube'], function(treeMaker, queryEngine, qCube) {
+     srcRequire(['treeMaker', 'queryEngine', 'qCube', 'Pivot'], function(treeMaker, queryEngine, qCube, Pivot) {
          window.CB = treeMaker;
          window.QE = queryEngine;
          window.QC = qCube;
+         window.Pivot = Pivot;
          jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
          jasmine.getEnv().execute();
      });

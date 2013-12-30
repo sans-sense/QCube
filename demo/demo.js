@@ -46,8 +46,59 @@ window.onload = function() {
         }
         $('#recomputeBtn').click(function(){showTables()});
         showTables();
+        makeTableEditable();
     });
     
+    function makeTableEditable() {
+        var elem, defaultText;
+        $("#salesData").on({
+            keypress: function (event) {
+                var newValue;
+                if (elem) {
+                    if (event.keyCode === 13) {
+                        newValue = elem.children().val();
+                        elem.text(newValue);
+                        if (newValue == 0) {
+                            elem.parents("tr").remove();
+                        }
+                        $('#in').remove();
+                    } else if (event.keyCode === 27) {
+                        elem.text(defaultText);
+                        $('#in').remove();
+                    }
+                }
+            },
+            click: function (event) {
+                if (event.target.tagName !== "INPUT" && elem) {
+                    elem.text(elem.children().val());
+                }
+            }
+        });
+
+        $("#salesData").on('dblclick', 'td', function (event) {
+            event.preventDefault();
+            defaultText = $(this).text().trim();
+            elem = $(this);
+
+            elem.html('<input id="in" type= "text" value="' + defaultText + '" class="chng"/>');
+            elem.children().first().focus();
+        });
+
+        $("#addRecordBtn").click(function(){
+            $("#salesData").append("<tr> </tr>");
+            $("#salesData th").each(function(){
+                $("#salesData tr:last").append("<td><input class='chng' type='text'/></td>");
+            });
+            $(".chng").bind("keypress",function(event){
+                if(event.which === 13){
+                    $(".chng").each(function(){
+                        $(this).parent().text($(this).val());
+                    });
+                }
+            });
+        });
+
+    }
     function createTable(parentDivIdentifier, template, columnNames, rowData)  {
         var tableIdetifier = parentDivIdentifier + ' table' ;
         $(tableIdetifier).remove();
